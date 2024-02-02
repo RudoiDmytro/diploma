@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -8,14 +9,36 @@ datasource db {
 }
 
 model User {
-  id        Int         @id @default(autoincrement())
-  email     String      @unique
-  password  String
-  username  String      @unique
-  role    Role     @default(USER)
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  username String @unique
+  role     Role   @default(USER)
+
+  @@map("users")
 }
 
 enum Role {
   USER
   EMPLOYEE
+}
+
+model Job {
+  id               Int      @id @default(autoincrement())
+  slug             String   @unique
+  title            String
+  type             String
+  locationType     String
+  location         String?
+  description      String
+  salary           Int
+  companyName      String
+  applicationEmail String?
+  applicationUrl   String?
+  companyLogoUrl   String?
+  approved         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("jobs")
 }

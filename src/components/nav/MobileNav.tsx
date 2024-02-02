@@ -15,7 +15,7 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
 
   const pathName = usePathname();
   return (
-    <div className="absolute top-16 right-0 w-8/12 h-[calc(100vh-4rem)] opacity-90 gap-3 bg-gray-300 flex flex-col justify-center">
+    <div className="absolute top-16 right-0 w-8/12 h-screen overflow-hidden opacity-90 gap-3 bg-gray-300 flex flex-col justify-center">
       {navItems.map((item, index) => (
         <Link
           key={index}

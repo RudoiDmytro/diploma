@@ -17,11 +17,6 @@ const navItems = [
   { label: "Customer Supports", link: "/support", isFocused: false },
 ];
 
-const variants = {
-  open: { opacity: 1, x: 0 },
-  closed: { opacity: 0, x: "-100%" },
-};
-
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -44,15 +39,9 @@ export default function Navbar() {
             </Button>
           </Link>
         )}
-        {!isOpen ? (
-          <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
-            <Menu />
-          </button>
-        ) : (
-          <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
-            <X />
-          </button>
-        )}
+        <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
+          {!isOpen ? <Menu /> : <X />}
+        </button>
         {isOpen && (
           <div>
             <MobileNav navItems={navItems} />
