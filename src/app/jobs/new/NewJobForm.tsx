@@ -153,7 +153,7 @@ export default function NewJobForm() {
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company logo</FormLabel>
+                  <FormLabel>Office location</FormLabel>
                   <FormControl>
                     <LocationInput onLocationSelected={field.onChange} ref={field.ref}/>
                   </FormControl>
