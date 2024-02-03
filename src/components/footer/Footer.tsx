@@ -1,7 +1,9 @@
-import React from 'react'
-
 export default function Footer() {
   return (
-    <div>Footer</div>
-  )
+    <footer className="fixed bottom-0">
+      <div className="flex max-w-7xl p-4 space-y-3">
+        {new Date().getFullYear()} All rights reserved.
+      </div>
+    </footer>
+  );
 }
