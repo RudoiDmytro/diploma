@@ -10,8 +10,9 @@ import {
 import Image from "next/image";
 import { formatMoney, formatDate } from "@/lib/utils";
 import Badge from "./Badge";
+import companyLogoPlaceholder from "@/assets/building-2.svg";
 
-type JobListItem = {
+type JobListItemProps = {
   job: Job;
 };
 
@@ -26,10 +27,16 @@ export default function JobListItem({
     companyLogoUrl,
     createdAt,
   },
-}: JobListItem) {
+}: JobListItemProps) {
   return (
-    <article className="flex gap-3 rounded-xl border p-4 hover:bg-muted/60">
-      <Building2 className="self-center" size={50} />
+    <article className="flex md:min-h-full gap-3 rounded-xl border p-4 hover:bg-muted/60">
+      <Image
+        src={companyLogoUrl || companyLogoPlaceholder}
+        alt={`${companyName} logo`}
+        className="rounded-lg self-center"
+        height={50}
+        width={50}
+      />
       <div className="flex-grow space-y-3">
         <div>
           <h2 className="text-xl font-medium">{title}</h2>
@@ -61,7 +68,7 @@ export default function JobListItem({
       <div className="hidden md:flex flex-col shrink-0 items-end justify-between">
         <Badge>{type}</Badge>
         <span className="flex items-center gap-2 text-muted-foreground">
-          <Clock size={16}/>
+          <Clock size={16} />
           {formatDate(createdAt)}
         </span>
       </div>

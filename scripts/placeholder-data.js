@@ -78,7 +78,7 @@ Key Responsibilities:
 
 Qualifications:
 
-Ya, [01.02.2024 16:44]
+
 
 - Bachelor's degree in Computer Science or a related field, or equivalent experience.
 - Strong proficiency in JavaScript, including DOM manipulation and the JavaScript object model.
@@ -156,7 +156,7 @@ Benefits:
 
 OpenAI is committed to diversity in its workforce and is proud to be an equal opportunity employer.
 
-Ya, [01.02.2024 16:44]
+
 If you're passionate about AI and want to contribute to cutting-edge technology that impacts the world, join us at OpenAI!
 `,
   },
@@ -240,7 +240,7 @@ Benefits:
 
 Microsoft is an equal opportunity employer and supports workforce diversity.
 
-Ya, [01.02.2024 16:44]
+
 As a Microsoft contractor, you'll have the opportunity to work on exciting projects and make a significant impact in the tech world. Join us and be a part of Microsoft's innovative journey!
 `,
   },
