@@ -1,5 +1,5 @@
 import { Job, Prisma } from "@prisma/client";
-import JobListItem from "./JobListItem";
+import TestListItem from "./TestListItem";
 import { JobFilterValues } from "@/lib/validation";
 import { db } from "@/lib/db";
 import Link from "next/link";
@@ -8,7 +8,7 @@ type JobResultsProps = {
   filterValues: JobFilterValues;
 };
 
-export default async function JobResults({
+export default async function TestResults({
   filterValues: { q, type, location, remote },
 }: JobResultsProps) {
   const searchString = q
@@ -47,7 +47,7 @@ export default async function JobResults({
     <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 place-content-start">
       {jobs.map((job: Job) => (
         <Link key={job.id} href={`/jobs/${job.slug}`} className="block">
-          <JobListItem job={job} />
+          <TestListItem job={job} />
         </Link>
       ))}
       {jobs.length === 0 && (
