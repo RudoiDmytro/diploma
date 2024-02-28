@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins", "fullTextSearch"]
 }
 
 datasource db {
@@ -13,14 +13,15 @@ model User {
   email    String @unique
   password String
   username String @unique
-  role     Role   @default(USER)
+  role     Role   @default(SEEKER)
 
   @@map("users")
 }
 
 enum Role {
-  USER
-  EMPLOYEE
+  SEEKER
+  EMPLOYER
+  CHECKER
 }
 
 model Job {
@@ -41,4 +42,53 @@ model Job {
   updatedAt        DateTime @updatedAt
 
   @@map("jobs")
+}
+
+model Assessment {
+  id          Int        @id @default(autoincrement())
+  slug        String     @unique
+  title       String
+  duration    DateTime
+  category    Category[]
+  description String?
+  approved    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  tasks       Task[]
+
+  @@map("assessments")
+}
+
+model Category {
+  categoryId   Int         @id @default(autoincrement())
+  categoryName String
+  assessment   Assessment? @relation(fields: [assessmentId], references: [id])
+  assessmentId Int?
+
+  @@map("categories")
+}
+
+model Task {
+  token        String     @unique
+  evaluation   Evaluation @relation(fields: [token], references: [taskToken])
+  assessmentId Int
+  type         TaskType
+  taskFile     String?
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@map("tasks")
+}
+
+enum TaskType {
+  PROBLEM
+  TEST
+}
+
+model Evaluation {
+  taskToken   String  @unique
+  score       Int
+  description String?
+  task        Task[]
+
+  @@map("evaluations")
 }

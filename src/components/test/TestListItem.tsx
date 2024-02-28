@@ -9,7 +9,7 @@ type JobListItemProps = {
   job: Job;
 };
 
-export default function JobListItem({
+export default function TestListItem({
   job: {
     title,
     companyName,

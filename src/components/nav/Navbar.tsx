@@ -42,7 +42,6 @@ export default function Navbar() {
             </Link>
           )}
         </div>
-
         <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
           {!isOpen ? <Menu /> : <X />}
         </button>
