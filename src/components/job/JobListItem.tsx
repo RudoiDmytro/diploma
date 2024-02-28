@@ -2,7 +2,6 @@ import { Job } from "@prisma/client";
 import {
   Banknote,
   Briefcase,
-  Building2,
   Clock,
   Globe2,
   MapPin,

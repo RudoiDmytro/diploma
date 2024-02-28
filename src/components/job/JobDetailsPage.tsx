@@ -1,6 +1,6 @@
 import { formatMoney } from "@/lib/utils";
 import { Job } from "@prisma/client";
-import { Banknote, Briefcase, Clock, Globe2, MapPin } from "lucide-react";
+import { Banknote, Briefcase, Globe2, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import Markdown from "../Markdown";
