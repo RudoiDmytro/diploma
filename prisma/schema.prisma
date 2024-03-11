@@ -9,8 +9,7 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
+  email    String @id @db.VarChar(50)
   password String
   username String @unique
   role     Role   @default(SEEKER)
@@ -25,8 +24,7 @@ enum Role {
 }
 
 model Job {
-  id               Int      @id @default(autoincrement())
-  slug             String   @unique
+  slug             String @id @db.VarChar(2000)
   title            String
   type             String
   locationType     String
@@ -60,8 +58,7 @@ model Assessment {
 }
 
 model Category {
-  categoryId   Int         @id @default(autoincrement())
-  categoryName String
+  categoryName String      @id @db.VarChar(50)
   assessment   Assessment? @relation(fields: [assessmentId], references: [id])
   assessmentId Int?
 
