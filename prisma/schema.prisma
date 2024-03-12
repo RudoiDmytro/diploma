@@ -49,19 +49,17 @@ model Job {
 }
 
 model Assessment {
-  id           Int       @id @default(autoincrement())
-  slug         String    @unique
+  slug         String   @id @db.VarChar(2000)
   title        String
   duration     DateTime
-  categoryName String    @unique
-  category     Category? @relation(fields: [categoryName], references: [name])
+  category     Category @relation(fields: [categoryName], references: [naming])
   description  String?
-  approved     Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  type         String
-  tag          Tag[]
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   tasks        Task[]
+  categoryName String   @db.VarChar(50)
+  tags         Tag[]
   User         User?     @relation(fields: [userId], references: [id])
   userId       Int?
 
@@ -69,31 +67,29 @@ model Assessment {
 }
 
 model Category {
-  categoryId Int          @id @default(autoincrement())
-  name       String       @unique
-  tag        Tag[]
+  naming     String       @id @db.VarChar(50)
   assessment Assessment[]
+  tag        Tag[]
 
   @@map("categories")
 }
 
 model Tag {
-  tagId      Int          @id @default(autoincrement())
-  tagName    String
+  naming     String       @id @db.VarChar(50)
   category   Category[]
-  assessment Assessment[]
   Job        Job[]
+  assessment Assessment[]
 
   @@map("tags")
 }
 
 model Task {
-  token        String     @unique
-  evaluation   Evaluation @relation(fields: [token], references: [taskToken])
-  assessmentId Int
-  type         TaskType
-  taskFile     String?
-  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  token           String     @id @db.VarChar(2000)
+  evaluation      Evaluation @relation(fields: [token], references: [taskToken])
+  type            TaskType
+  taskFile        String?
+  assessment      Assessment @relation(fields: [assessment_slug], references: [slug])
+  assessment_slug String
 
   @@map("tasks")
 }
@@ -104,7 +100,7 @@ enum TaskType {
 }
 
 model Evaluation {
-  taskToken   String  @unique
+  taskToken   String  @id @db.VarChar(2000)
   score       Int
   description String?
   task        Task[]
