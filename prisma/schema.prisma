@@ -27,8 +27,7 @@ enum Role {
 }
 
 model Job {
-  id               Int      @id @default(autoincrement())
-  slug             String   @unique
+  slug             String   @id @db.VarChar(2000)
   title            String
   type             String
   locationType     String
@@ -83,8 +82,7 @@ model Tag {
   tagName    String
   category   Category[]
   assessment Assessment[]
-  Job        Job?         @relation(fields: [jobId], references: [id])
-  jobId      Int?
+  Job        Job[]
 
   @@map("tags")
 }
