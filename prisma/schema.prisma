@@ -9,11 +9,13 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
-  username String @unique
-  role     Role   @default(SEEKER)
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
+  password   String
+  username   String       @unique
+  role       Role         @default(SEEKER)
+  jobs       Job[]
+  assesments Assessment[]
 
   @@map("users")
 }
@@ -40,32 +42,51 @@ model Job {
   approved         Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  User             User?    @relation(fields: [userId], references: [id])
+  userId           Int?
+  tag              Tag[]
 
   @@map("jobs")
 }
 
 model Assessment {
-  id          Int        @id @default(autoincrement())
-  slug        String     @unique
-  title       String
-  duration    DateTime
-  category    Category[]
-  description String?
-  approved    Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  tasks       Task[]
+  id           Int       @id @default(autoincrement())
+  slug         String    @unique
+  title        String
+  duration     DateTime
+  categoryName String    @unique
+  category     Category? @relation(fields: [categoryName], references: [name])
+  description  String?
+  approved     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  type         String
+  tag          Tag[]
+  tasks        Task[]
+  User         User?     @relation(fields: [userId], references: [id])
+  userId       Int?
 
   @@map("assessments")
 }
 
 model Category {
-  categoryId   Int         @id @default(autoincrement())
-  categoryName String
-  assessment   Assessment? @relation(fields: [assessmentId], references: [id])
-  assessmentId Int?
+  categoryId Int          @id @default(autoincrement())
+  name       String       @unique
+  tag        Tag[]
+  assessment Assessment[]
 
   @@map("categories")
+}
+
+model Tag {
+  tagId      Int          @id @default(autoincrement())
+  tagName    String
+  category   Category[]
+  assessment Assessment[]
+  Job        Job?         @relation(fields: [jobId], references: [id])
+  jobId      Int?
+
+  @@map("tags")
 }
 
 model Task {

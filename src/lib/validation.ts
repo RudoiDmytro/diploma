@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { jobTypes, locationTypes } from "./job-types";
+import { testTypes } from "./test-types";
 
 const requiredString = z.string().min(1, "Required");
 const numericRequiredString = requiredString.regex(/^\d+$/, "Must be a number");
@@ -34,7 +35,7 @@ const locationSchema = z
   })
   .refine(
     (data) =>
-      !data.locationType || data.locationType === "Reamote" || data.location,
+      !data.locationType || data.locationType === "Remote" || data.location,
     {
       message: "Location is required for this application",
       path: ["location"],
@@ -66,3 +67,12 @@ export const jobFilterSchema = z.object({
 });
 
 export type JobFilterValues = z.infer<typeof jobFilterSchema>;
+
+export const testFilterSchema = z.object({
+  q: z.string().optional(),
+  type: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.string().optional(),
+});
+
+export type TestFilterValues = z.infer<typeof testFilterSchema>;

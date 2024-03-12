@@ -1,8 +1,10 @@
 import JobFilterSidebar from "@/components/job/JobFilterSidebar";
 import JobResults from "@/components/job/JobResults";
+import { Button } from "@/components/ui/button";
 import H1 from "@/components/ui/h1";
 import { JobFilterValues } from "@/lib/validation";
 import { Metadata } from "next";
+import Link from "next/link";
 
 type PageProps = {
   searchParams: {
@@ -51,9 +53,18 @@ export default function Jobs({
 
   return (
     <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
-      <div className="space-y-5 text-center">
-        <H1>{getTitle(filterValues)}</H1>
-        <p className="text-muted-foreground"> Find your dream job</p>
+      <div className="space-y-5 text-center flex flex-row ml-[20%] px-4 m-auto items-center justify-between">
+        <div>
+          <H1>{getTitle(filterValues)}</H1>
+          <p className="text-muted-foreground"> Find your dream job</p>
+        </div>
+        <aside>
+          <Button asChild>
+            <Link href="/jobs/new" className="w-40 md:w-fit">
+              Add new job
+            </Link>
+          </Button>
+        </aside>
       </div>
       <section className="flex flex-col lg:flex-row gap-3">
         <JobFilterSidebar defaultValues={filterValues} />
