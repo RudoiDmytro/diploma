@@ -24,7 +24,7 @@ enum Role {
 }
 
 model Job {
-  slug             String @id @db.VarChar(2000)
+  slug             String   @id @db.VarChar(2000)
   title            String
   type             String
   locationType     String
@@ -43,35 +43,42 @@ model Job {
 }
 
 model Assessment {
-  id          Int        @id @default(autoincrement())
-  slug        String     @unique
-  title       String
-  duration    DateTime
-  category    Category[]
-  description String?
-  approved    Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  tasks       Task[]
+  slug         String   @id @db.VarChar(2000)
+  title        String
+  duration     DateTime
+  category     Category @relation(fields: [categoryName], references: [naming])
+  description  String?
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tasks        Task[]
+  categoryName String   @db.VarChar(50)
+  tags         Tag[]
 
   @@map("assessments")
 }
 
 model Category {
-  categoryName String      @id @db.VarChar(50)
-  assessment   Assessment? @relation(fields: [assessmentId], references: [id])
-  assessmentId Int?
+  naming     String       @id @db.VarChar(50)
+  assessment Assessment[]
 
   @@map("categories")
 }
 
+model Tag {
+  naming     String       @id @db.VarChar(50)
+  assessment Assessment[]
+
+  @@map("tags")
+}
+
 model Task {
-  token        String     @unique
-  evaluation   Evaluation @relation(fields: [token], references: [taskToken])
-  assessmentId Int
-  type         TaskType
-  taskFile     String?
-  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  token           String     @id @db.VarChar(2000)
+  evaluation      Evaluation @relation(fields: [token], references: [taskToken])
+  type            TaskType
+  taskFile        String?
+  assessment      Assessment @relation(fields: [assessment_slug], references: [slug])
+  assessment_slug String
 
   @@map("tasks")
 }
@@ -82,7 +89,7 @@ enum TaskType {
 }
 
 model Evaluation {
-  taskToken   String  @unique
+  taskToken   String  @id @db.VarChar(2000)
   score       Int
   description String?
   task        Task[]
