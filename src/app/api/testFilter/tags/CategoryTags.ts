@@ -7,8 +7,8 @@ export async function GetCategoryTags(category: Category) {
   try {
     return await db.tag.findMany({
       where: { category: category },
-      select: { tagName: true },
-      distinct: ["tagName"],
+      select: { tag: { select: { naming: true } } },
+      distinct: ["naming"],
     });
   } catch (err) {
     console.log(err);
