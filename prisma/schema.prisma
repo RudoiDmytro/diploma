@@ -9,13 +9,22 @@ datasource db {
 }
 
 model User {
-  id         Int          @id @default(autoincrement())
-  email      String       @unique
-  password   String
-  username   String       @unique
-  role       Role         @default(SEEKER)
-  jobs       Job[]
-  assesments Assessment[]
+  userId              Int           @id @default(autoincrement())
+  email               String?       @unique
+  password            String
+  phoneNumber         String?
+  role                Role          @default(SEEKER)
+  isAdmin             Boolean?
+  isEmployer          Boolean?
+  jobs                Job[]
+  assesments          Assessment[]
+  seekerSkills        Skill[]
+  cvFileUrl           String?
+  profilePhotoUrl     String?
+  organizationName    String?
+  organizationLogoUrl String?
+  application         Application[]
+  Result              Result[]
 
   @@map("users")
 }
@@ -23,11 +32,11 @@ model User {
 enum Role {
   SEEKER
   EMPLOYER
-  CHECKER
+  ADMIN
 }
 
 model Job {
-  slug             String   @id @db.VarChar(2000)
+  slug             String        @id @db.VarChar(2000)
   title            String
   type             String
   locationType     String
@@ -38,58 +47,90 @@ model Job {
   applicationEmail String?
   applicationUrl   String?
   companyLogoUrl   String?
-  approved         Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User?    @relation(fields: [userId], references: [id])
+  approved         Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  user             User?         @relation(fields: [userId], references: [userId])
   userId           Int?
-  tag              Tag[]
+  category         Category      @relation(fields: [categoryId], references: [categoryId])
+  categoryId       Int
+  requiredSkills   Skill[]
+  Application      Application[]
 
   @@map("jobs")
 }
 
+model Application {
+  applicationId Int       @id
+  job           Job       @relation(fields: [jobSlug], references: [slug])
+  user          User      @relation(fields: [userId], references: [userId])
+  jobSlug       String    @db.VarChar(2000)
+  userId        Int
+  feedback      Feedback?
+
+  @@map("applicaions")
+}
+
+model Feedback {
+  feedbackId    Int         @id
+  application   Application @relation(fields: [applicationId], references: [applicationId])
+  applicationId Int         @unique
+  feedbackText  String
+  feedbackDate  DateTime
+
+  @@map("feedback")
+}
+
 model Assessment {
-  slug         String   @id @db.VarChar(2000)
-  title        String
-  duration     DateTime
-  category     Category @relation(fields: [categoryName], references: [naming])
-  description  String?
-  approved     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  tasks        Task[]
-  categoryName String   @db.VarChar(50)
-  tags         Tag[]
-  user         User?     @relation(fields: [userId], references: [id])
-  userId       Int?
+  slug        String   @id @db.VarChar(2000)
+  title       String
+  duration    DateTime
+  description String?
+  approved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  score       Int
+  tasks       Task[]
+  user        User?    @relation(fields: [userId], references: [userId])
+  userId      Int?
+  Result      Result[]
 
   @@map("assessments")
 }
 
 model Category {
-  naming     String       @id @db.VarChar(50)
-  assessment Assessment[]
-  tag        Tag[]
+  categoryId Int    @id
+  naming     String @unique
+  job        Job[]
 
   @@map("categories")
 }
 
-model Tag {
-  naming     String       @id @db.VarChar(50)
-  category   Category[]
-  job        Job[]
-  assessment Assessment[]
+model Skill {
+  skillId          Int     @id
+  skillName        String  @unique
+  requiredLevel    String?
+  proficientyLevel String?
+  job              Job?    @relation(fields: [jobSlug], references: [slug])
+  user             User?   @relation(fields: [userId], references: [userId])
+  userId           Int?
+  jobSlug          String? @db.VarChar(2000)
 
   @@map("tags")
 }
 
 model Task {
-  token           String     @id @db.VarChar(2000)
-  evaluation      Evaluation @relation(fields: [token], references: [taskToken])
+  taskToken       String     @id @db.VarChar(2000)
   type            TaskType
   taskFile        String?
+  question        String?
+  position        Int
+  ponderation     Int
   assessment      Assessment @relation(fields: [assessment_slug], references: [slug])
   assessment_slug String
+  answers         Answer[]
+  Result          Result?    @relation(fields: [resultResultId], references: [resultId])
+  resultResultId  Int?
 
   @@map("tasks")
 }
@@ -99,11 +140,26 @@ enum TaskType {
   TEST
 }
 
-model Evaluation {
-  taskToken   String  @id @db.VarChar(2000)
+model Answer {
+  answerId    Int     @id
   score       Int
   description String?
-  task        Task[]
+  correct     Boolean
+  task        Task    @relation(fields: [taskToken], references: [taskToken])
+  taskToken   String  @db.VarChar(2000)
+
+  @@map("answers")
+}
+
+model Result {
+  resultId       Int        @id
+  description    String?
+  assessmentDate DateTime
+  assessment     Assessment @relation(fields: [assessmentSlug], references: [slug])
+  user           User       @relation(fields: [userId], references: [userId])
+  Task           Task[]
+  assessmentSlug String     @db.VarChar(2000)
+  userId         Int
 
   @@map("evaluations")
 }
