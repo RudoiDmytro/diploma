@@ -41,7 +41,7 @@ model Job {
   approved         Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  User             User?    @relation(fields: [userId], references: [id])
+  user             User?    @relation(fields: [userId], references: [id])
   userId           Int?
   tag              Tag[]
 
@@ -60,7 +60,7 @@ model Assessment {
   tasks        Task[]
   categoryName String   @db.VarChar(50)
   tags         Tag[]
-  User         User?     @relation(fields: [userId], references: [id])
+  user         User?     @relation(fields: [userId], references: [id])
   userId       Int?
 
   @@map("assessments")
@@ -77,7 +77,7 @@ model Category {
 model Tag {
   naming     String       @id @db.VarChar(50)
   category   Category[]
-  Job        Job[]
+  job        Job[]
   assessment Assessment[]
 
   @@map("tags")
