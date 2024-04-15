@@ -1,7 +1,7 @@
 "use client";
 import H1 from "@/components/ui/h1";
 import { createJobValues } from "@/lib/validation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller, get } from "react-hook-form";
 import { createJobSchema } from "../../../lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -22,17 +22,182 @@ import RichTextEditor from "@/components/RichTextEditor";
 import { draftToMarkdown } from "markdown-draft-js";
 import LoadingButton from "@/components/LoadingButton";
 import { createJobPosting } from "./actions";
+import { useState, useEffect } from "react";
+import { Category } from "@prisma/client";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const CheckboxField = ({ name, label, control, handleSkillSelect }) => (
+  <Controller
+    control={control}
+    name={name}
+    render={({ field }) => (
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={field.value}
+          onCheckedChange={(checked) => {
+            field.onChange(checked);
+            handleSkillSelect(parseInt(name.split(".")[1]));
+          }}
+        />
+        <label>{label}</label>
+      </div>
+    )}
+  />
+);
+
+interface Skill {
+  skillId: number;
+  skillName: string;
+}
 
 export default function NewJobForm() {
   const form = useForm<createJobValues>({
     resolver: zodResolver(createJobSchema),
   });
 
+  const [categories, setCategories] = useState([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await fetch("/api/skills");
+        if (!response.ok) {
+          throw new Error("Failed to fetch skills");
+        }
+        const data = await response.json();
+        setSkills(data);
+
+        const storedSkills = localStorage.getItem("selectedSkills");
+        if (storedSkills) {
+          setSelectedSkills(JSON.parse(storedSkills));
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
+  const [newSkillName, setNewSkillName] = useState("");
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await fetch("/api/skills");
+        if (!response.ok) {
+          throw new Error("Failed to fetch skills");
+        }
+        const data = await response.json();
+        setSkills(data);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("selectedSkills", JSON.stringify(selectedSkills));
+  }, [selectedSkills]);
+
+  const handleSkillsDialogOpen = () => {
+    setIsSkillsDialogOpen(true);
+  };
+
+  const handleSkillsDialogClose = () => {
+    setIsSkillsDialogOpen(false);
+    setSelectedSkills([]);
+    setNewSkillName("");
+  };
+
+  const handleSkillSelect = (skillId: number) => {
+    if (selectedSkills.includes(skillId)) {
+      setSelectedSkills(selectedSkills.filter((id) => id !== skillId));
+    } else {
+      setSelectedSkills([...selectedSkills, skillId]);
+    }
+  };
+
+  const handleNewSkillSubmit = async () => {
+    try {
+      const response = await fetch("/api/skills", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ skillName: newSkillName }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create new skill");
+      }
+      const newSkill = await response.json();
+      setSkills([...skills, newSkill]);
+      setSelectedSkills([...selectedSkills, newSkill.skillId]);
+      setNewSkillName("");
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(err.message);
+      }
+    }
+  };
+
+  if (error) return <div>Failed to load: {error}</div>;
+  if (loading) return <div>Loading...</div>;
+
+  const appendToFormData = (formData, key, value) => {
+    if (value instanceof File) {
+      formData.append(key, value);
+    } else if (Array.isArray(value)) {
+      value.forEach((item) => {
+        formData.append(key, JSON.stringify(item));
+      });
+    } else {
+      formData.append(key, value);
+    }
+  };
+
   const onSubmit = async (values: createJobValues) => {
     const formData = new FormData();
 
     Object.entries(values).forEach(([key, value]) => {
-      if (value) formData.append(key, value);
+      if (value) {
+        appendToFormData(formData, key, value);
+      }
     });
 
     try {
@@ -265,6 +430,166 @@ export default function NewJobForm() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Select {...field} defaultValue="">
+                      <option value="" hidden>
+                        Select a category
+                      </option>
+                      {categories.map((category: Category) => (
+                        <option
+                          value={category.categoryId}
+                          key={category.categoryId}
+                        >
+                          {category.naming}
+                        </option>
+                      ))}
+                      <option value="new">Add new category</option>
+                    </Select>
+                  </FormControl>
+                  {watch("category") === "new" && (
+                    <div className="mt-2">
+                      <FormField
+                        control={control}
+                        name="newCategory"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter new category"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="requiredSkills"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Required Skills{" "}
+                    <button type="button" onClick={handleSkillsDialogOpen}>
+                      Select Skills
+                    </button>
+                  </FormLabel>
+                  <FormControl>
+                    {selectedSkills.map((skillId) => {
+                      const skill = skills.find((s) => s.skillId === skillId);
+                      return (
+                        <div
+                          key={skillId}
+                          className="bg-gray-100 px-2 py-1 rounded"
+                        >
+                          {skill?.skillName}
+                        </div>
+                      );
+                    })}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Skills selection dialog */}
+            <Transition appear show={isSkillsDialogOpen} as={Fragment}>
+              <Dialog
+                as="div"
+                className="fixed inset-0 z-10 overflow-y-auto"
+                onClose={handleSkillsDialogClose}
+              >
+                <div className="min-h-screen px-4 text-center">
+                  <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+                  </Transition.Child>
+
+                  <span
+                    className="inline-block h-screen align-middle"
+                    aria-hidden="true"
+                  >
+                    &#8203;
+                  </span>
+                  <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100 scale-100"
+                    leaveTo="opacity-0 scale-95"
+                  >
+                    <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                      <Dialog.Title
+                        as="h3"
+                        className="text-lg font-medium leading-6 text-gray-900"
+                      >
+                        Select Required Skills
+                      </Dialog.Title>
+                      <div className="mt-4 space-y-2">
+                        {skills.map((skill) => (
+                          <div key={skill.skillId}>
+                            <CheckboxField
+                              name={`requiredSkills.${skill.skillId}`}
+                              label={skill.skillName}
+                              control={form.control}
+                              handleSkillSelect={handleSkillSelect}
+                            />
+                          </div>
+                        ))}
+                        <div className="mt-4">
+                          <input
+                            type="text"
+                            placeholder="Add new skill"
+                            value={newSkillName}
+                            onChange={(e) => setNewSkillName(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                          />
+                          <button
+                            type="button"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded ml-2"
+                            onClick={handleNewSkillSubmit}
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                          onClick={handleSkillsDialogClose}
+                        >
+                          Confirm
+                        </button>
+                      </div>
+                    </div>
+                  </Transition.Child>
+                </div>
+              </Dialog>
+            </Transition>
             <FormField
               control={control}
               name="salary"
