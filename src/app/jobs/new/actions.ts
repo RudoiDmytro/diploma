@@ -10,7 +10,6 @@ import { redirect } from "next/navigation";
 
 export async function createJobPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
-
   const {
     title,
     type,
@@ -22,12 +21,13 @@ export async function createJobPosting(formData: FormData) {
     applicationUrl,
     description,
     salary,
+    category,
+    newCategory,
   } = createJobSchema.parse(values);
 
   const slug = `${toSlug(title)}-${nanoid(10)}`;
 
   let companyLogoUrl: string | undefined = undefined;
-
   if (companyLogo) {
     const blob = await put(
       `company_logos/${slug}${path.extname(companyLogo.name)}`,
@@ -38,6 +38,18 @@ export async function createJobPosting(formData: FormData) {
       }
     );
     companyLogoUrl = blob.url;
+  }
+
+  let categoryId: number;
+  if (category === "new") {
+    const newCategoryData = await db.category.create({
+      data: {
+        naming: newCategory!.trim(),
+      },
+    });
+    categoryId = newCategoryData.categoryId;
+  } else {
+    categoryId = parseInt(category);
   }
 
   await db.job.create({
@@ -53,6 +65,7 @@ export async function createJobPosting(formData: FormData) {
       applicationUrl: applicationUrl?.trim(),
       description: description.trim(),
       salary: parseInt(salary),
+      categoryId,
     },
   });
 

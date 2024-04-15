@@ -34,7 +34,7 @@ export default async function JobResults({
       type ? { type } : {},
       location ? { location } : {},
       remote ? { locationType: "Remote" } : {},
-      { approved: true },
+      { approved: false },
     ],
   };
 
@@ -46,7 +46,7 @@ export default async function JobResults({
   return (
     <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 place-content-start">
       {jobs.map((job: Job) => (
-        <Link key={job.id} href={`/jobs/${job.slug}`} className="block">
+        <Link key={job.slug} href={`/jobs/${job.slug}`} className="block">
           <JobListItem job={job} />
         </Link>
       ))}

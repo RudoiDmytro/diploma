@@ -19,6 +19,7 @@ export default function JobListItem({
     salary,
     companyLogoUrl,
     createdAt,
+    categoryId
   },
 }: JobListItemProps) {
   return (

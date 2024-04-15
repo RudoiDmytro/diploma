@@ -100,7 +100,7 @@ model Assessment {
 }
 
 model Category {
-  categoryId Int    @id
+  categoryId Int    @id @default(autoincrement())
   naming     String @unique @db.VarChar(100)
   job        Job[]
 
@@ -108,7 +108,7 @@ model Category {
 }
 
 model Skill {
-  skillId          Int     @id
+  skillId          Int     @id @default(autoincrement())
   skillName        String  @unique @db.VarChar(300)
   requiredLevel    String? @db.VarChar(100)
   proficientyLevel String? @db.VarChar(100)
@@ -141,7 +141,7 @@ enum TaskType {
 }
 
 model Answer {
-  answerId    Int     @id
+  answerId    Int     @id @default(autoincrement())
   score       Int
   description String?
   correct     Boolean
@@ -152,7 +152,7 @@ model Answer {
 }
 
 model Result {
-  resultId       Int        @id
+  resultId       Int        @id @default(autoincrement())
   description    String?
   assessmentDate DateTime
   assessment     Assessment @relation(fields: [assessmentSlug], references: [slug])

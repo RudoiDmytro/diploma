@@ -42,6 +42,15 @@ const locationSchema = z
     }
   );
 
+const categorySchema = z.object({
+  category: requiredString.max(100),
+  newCategory: requiredString.max(100).optional(),
+});
+
+const skillSchema = z.object({
+  skillId: z.number(),
+});
+
 export const createJobSchema = z
   .object({
     title: requiredString.max(100),
@@ -52,10 +61,12 @@ export const createJobSchema = z
     companyName: requiredString.max(100),
     companyLogo: companyLogoSchema,
     description: z.string().max(5000),
+    requiredSkills: z.array(skillSchema),
     salary: numericRequiredString.max(9, "Number longer than 9 digits"),
   })
   .and(applicationSchema)
-  .and(locationSchema);
+  .and(locationSchema)
+  .and(categorySchema);
 
 export type createJobValues = z.infer<typeof createJobSchema>;
 
