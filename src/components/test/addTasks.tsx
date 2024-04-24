@@ -44,6 +44,7 @@ export default function AddTasks(props) {
 
   const [tests, setTests] = useState<Test[]>([]);
   const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
+  const [isSecondDialogOpen, setIsSecondDialogOpen] = useState(false);
   const [numberOfTests, setNumberOfTests] = useState(1);
 
   const updateTest = (index, field, value) => {
@@ -96,9 +97,16 @@ export default function AddTasks(props) {
     setIsTestDialogOpen(false);
   };
 
+  const openSecondDialog = () => {
+    setIsSecondDialogOpen(true);
+  };
+
+  const closeSecondDialog = () => {
+    setIsSecondDialogOpen(false);
+  };
+
   const handleAddTest = (type: string, count: number) => {
     closeTestDialog();
-
     const newTests = [...tests];
     for (let i = 0; i < count; i++) {
       const initialAnswers = [{ text: "", isCorrect: false }];
@@ -110,37 +118,16 @@ export default function AddTasks(props) {
       });
     }
     setTests(newTests);
-  };
-
-  const appendToFormData = (formData, key, value) => {
-    if (value === null || value === undefined) {
-      return;
-    }
-    if (key === "tests") {
-      formData.append(key, JSON.stringify(value));
-    } else if (value instanceof File) {
-      formData.append(key, value);
-    } else if (Array.isArray(value)) {
-      if (value.length === 0) {
-        formData.append(key, "[]");
-      } else {
-        value.forEach((item) => {
-          formData.append(key, item);
-        });
-      }
-    } else {
-      formData.append(key, value);
-    }
+    setIsSecondDialogOpen(true); // Open the second dialog after adding tasks
   };
 
   const onSubmit = async (data) => {
     const formData = new FormData();
 
-    
     formData.append("assessmentSlug", props.slug);
     formData.append("questions", JSON.stringify(tests));
 
-    const testFiles = [];
+    const testFiles: any[] = [];
     data.tasks.forEach((task, index) => {
       if (task.taskFile) {
         testFiles.push(task.taskFile);
@@ -174,183 +161,6 @@ export default function AddTasks(props) {
           noValidate
           onSubmit={handleSubmit(onSubmit)}
         >
-          <FormField
-            control={control}
-            name="tasks"
-            render={({ field }) => (
-              <FormItem>
-                <button
-                  className="text-red-700 hover:text-white border border-red-700 hover:border-0 hover:bg-gradient focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
-                  type="button"
-                  onClick={addTestDialog}
-                >
-                  Add Test or Problem
-                </button>
-                <FormControl>
-                  <div>
-                    {tests.map((test, testIndex) => (
-                      <div key={testIndex}>
-                        <div className="flex flex-col my-3">
-                          <Label
-                            htmlFor={`question${testIndex}`}
-                            className="font-bold text-lg"
-                          >
-                            Add a {test.type === "problem" ? "problem" : "test"}
-                            question №{testIndex + 1}
-                          </Label>
-                          <Button
-                            className="bg-gradient"
-                            type="button"
-                            onClick={() => deleteTest(testIndex)}
-                          >
-                            Delete
-                          </Button>
-                          <div
-                            id={`question${testIndex}`}
-                            className="grid grid-flow-row auto-rows-min gap-2 my-2"
-                          >
-                            <div>
-                              <FormField
-                                control={control}
-                                name={`tasks.${testIndex}.question`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <RichTextEditor
-                                        onChange={(draft) => (
-                                          field.onChange(
-                                            draftToMarkdown(draft)
-                                          ),
-                                          updateTest(
-                                            testIndex,
-                                            "question",
-                                            draft
-                                          )
-                                        )}
-                                        ref={field.ref}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div>
-                              <div className="flex flex-row justify-between">
-                                <Label className="font-semibold text-md">
-                                  Multiple Answers
-                                </Label>
-                                <Label className="font-semibold text-md">
-                                  Correct
-                                </Label>
-                              </div>
-                              {test.type === "problem" && (
-                                <FileInput
-                                  accept={accept}
-                                  name={`tasks.${testIndex}.taskFile`}
-                                />
-                              )}
-                              {test.answers.map((answer, answerIndex) => (
-                                <div key={answerIndex}>
-                                  <FormField
-                                    control={control}
-                                    name={`tasks.${testIndex}.answers.${answerIndex}`}
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormControl>
-                                          <div className="flex items-center space-x-5 w-full ps-4 pe-4 border bg-gradient border-gray-200 rounded dark:border-gray-700">
-                                            <FormItem>
-                                              <FormControl>
-                                                <Input
-                                                  type="text"
-                                                  className=" mt-2 mb-2"
-                                                  name={`tasks.${testIndex}.question.answers.${answerIndex}.text`}
-                                                  placeholder={`Answer ${
-                                                    answerIndex + 1
-                                                  }`}
-                                                  value={answer.text}
-                                                  onChange={(e) =>
-                                                    updateAnswer(
-                                                      testIndex,
-                                                      answerIndex,
-                                                      "text",
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                />
-                                              </FormControl>
-                                            </FormItem>
-                                            <Button
-                                              key={answerIndex}
-                                              type="button"
-                                              variant="destructive"
-                                              className=""
-                                              onClick={() =>
-                                                deleteAnswer(
-                                                  testIndex,
-                                                  answerIndex
-                                                )
-                                              }
-                                            >
-                                              Delete
-                                            </Button>
-                                            <input
-                                              type="checkbox"
-                                              className="w-6 h-6 accent-red-500  bg-gray-100 border-gray-300 rounded dark:focus:ring-red-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
-                                              id="correct"
-                                              checked={answer.isCorrect}
-                                              name={`tasks.${testIndex}.answers.${answerIndex}.isCorrect`}
-                                              onChange={() =>
-                                                handleCorrectAnswer(
-                                                  testIndex,
-                                                  answerIndex
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                </div>
-                              ))}
-                              <div className="flex items-center justify-between">
-                                <Button
-                                  type="button"
-                                  onClick={() => addAnswer(testIndex)}
-                                >
-                                  Add Answer
-                                </Button>
-                              </div>
-                            </div>
-                            <div>
-                              <Label className="font-semibold text-md">
-                                Ponderation
-                              </Label>
-                              <Input
-                                type="number"
-                                placeholder="Ponderation"
-                                name={`tasks.${testIndex}.ponderation`}
-                                value={test.ponderation}
-                                onChange={(e) =>
-                                  updateTest(
-                                    testIndex,
-                                    "ponderation",
-                                    parseInt(e.target.value)
-                                  )
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </FormControl>
-              </FormItem>
-            )}
-          />
           <Transition appear show={isTestDialogOpen} as={Fragment}>
             <Dialog
               as="div"
@@ -421,9 +231,230 @@ export default function AddTasks(props) {
               </div>
             </Dialog>
           </Transition>
-          <LoadingButton type="submit" loading={isSubmitting}>
-            Submit
-          </LoadingButton>
+          <Button
+            className="focus:ring-4 focus:outline-none focus:ring-bg-gradient font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+            type="button"
+            onClick={addTestDialog}
+          >
+            Add Tests or Problems
+          </Button>
+          {tests.length > 0 && (
+            <Button type="button" onClick={openSecondDialog}>
+              Update
+            </Button>
+          )}
+          <Transition appear show={isSecondDialogOpen} as={Fragment}>
+            <Dialog
+              as="div"
+              className="fixed inset-0 z-10 overflow-y-auto"
+              onClose={closeSecondDialog}
+            >
+              <div className="min-h-screen px-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+                </Transition.Child>
+                <FormField
+                  control={control}
+                  name="tasks"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="inline-block w-fit max-w-md p-6 my-8 overflow-hidden text-center align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                          {tests.map((test, testIndex) => (
+                            <div key={testIndex}>
+                              <div className="flex flex-col my-3">
+                                <div className="flex flex-row justify-between mb-2">
+                                  <Label
+                                    htmlFor={`question${testIndex}`}
+                                    className="font-bold text-lg space-x-4"
+                                  >
+                                    Add a{" "}
+                                    {test.type === "problem"
+                                      ? "problem"
+                                      : "test"}{" "}
+                                    question №{testIndex + 1}
+                                  </Label>
+                                  <Button
+                                    className="w-fit"
+                                    type="button"
+                                    onClick={closeSecondDialog}
+                                  >
+                                    Close
+                                  </Button>
+                                </div>
+
+                                <Button
+                                  className="bg-gradient"
+                                  type="button"
+                                  onClick={() => {
+                                    deleteTest(testIndex);
+                                    if (tests.length == 1) closeSecondDialog();
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                                <div
+                                  id={`question${testIndex}`}
+                                  className="grid grid-flow-row auto-rows-min gap-2 my-2"
+                                >
+                                  <div>
+                                    <FormField
+                                      control={control}
+                                      name={`tasks.${testIndex}.question`}
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormControl>
+                                            <RichTextEditor
+                                              onChange={(draft) => (
+                                                field.onChange(
+                                                  draftToMarkdown(draft)
+                                                ),
+                                                updateTest(
+                                                  testIndex,
+                                                  "question",
+                                                  draft
+                                                )
+                                              )}
+                                              ref={field.ref}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                  </div>
+                                  <div>
+                                    <div className="flex flex-row justify-between">
+                                      <Label className="font-semibold text-md">
+                                        Multiple Answers
+                                      </Label>
+                                      <Label className="font-semibold text-md">
+                                        Correct
+                                      </Label>
+                                    </div>
+                                    {test.type === "problem" && (
+                                      <FileInput
+                                        accept={accept}
+                                        name={`tasks.${testIndex}.taskFile`}
+                                      />
+                                    )}
+                                    {test.answers.map((answer, answerIndex) => (
+                                      <div key={answerIndex}>
+                                        <FormField
+                                          control={control}
+                                          name={`tasks.${testIndex}.answers.${answerIndex}`}
+                                          render={({ field }) => (
+                                            <FormItem>
+                                              <FormControl>
+                                                <div className="flex items-center mt-1 space-x-5 w-full ps-4 pe-4 border bg-gradient border-gray-200 rounded dark:border-gray-700">
+                                                  <FormItem>
+                                                    <FormControl>
+                                                      <Input
+                                                        type="text"
+                                                        className=" mt-2 mb-2"
+                                                        name={`tasks.${testIndex}.question.answers.${answerIndex}.text`}
+                                                        placeholder={`Answer ${
+                                                          answerIndex + 1
+                                                        }`}
+                                                        value={answer.text}
+                                                        onChange={(e) =>
+                                                          updateAnswer(
+                                                            testIndex,
+                                                            answerIndex,
+                                                            "text",
+                                                            e.target.value
+                                                          )
+                                                        }
+                                                      />
+                                                    </FormControl>
+                                                  </FormItem>
+                                                  <Button
+                                                    key={answerIndex}
+                                                    type="button"
+                                                    variant="destructive"
+                                                    className=""
+                                                    onClick={() =>
+                                                      deleteAnswer(
+                                                        testIndex,
+                                                        answerIndex
+                                                      )
+                                                    }
+                                                  >
+                                                    Delete
+                                                  </Button>
+                                                  <input
+                                                    type="checkbox"
+                                                    className="w-6 h-6 accent-red-500  bg-gray-100 border-gray-300 rounded dark:focus:ring-red-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                                    id="correct"
+                                                    name={`tasks.${testIndex}.answers.${answerIndex}.isCorrect`}
+                                                    onChange={() =>
+                                                      handleCorrectAnswer(
+                                                        testIndex,
+                                                        answerIndex
+                                                      )
+                                                    }
+                                                    checked={answer.isCorrect}
+                                                  />
+                                                </div>
+                                              </FormControl>
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                      </div>
+                                    ))}
+                                    <div className="flex items-center justify-between mt-2">
+                                      <Button
+                                        type="button"
+                                        onClick={() => addAnswer(testIndex)}
+                                      >
+                                        Add Answer
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <Label className="font-semibold text-md">
+                                      Ponderation
+                                    </Label>
+                                    <Input
+                                      type="number"
+                                      placeholder="Ponderation"
+                                      name={`tasks.${testIndex}.ponderation`}
+                                      value={test.ponderation}
+                                      onChange={(e) =>
+                                        updateTest(
+                                          testIndex,
+                                          "ponderation",
+                                          parseInt(e.target.value)
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </Dialog>
+          </Transition>
+          {tests.length > 0 && (
+            <LoadingButton type="submit" loading={isSubmitting}>
+              Submit
+            </LoadingButton>
+          )}
         </form>
       </Form>
     </div>

@@ -1,5 +1,5 @@
 import { formatDate, formatMoney } from "@/lib/utils";
-import { Assessment } from "@prisma/client";
+import { Assessment, Task } from "@prisma/client";
 import { Banknote, Briefcase, Clock2, Globe2 } from "lucide-react";
 import Image from "next/image";
 import Markdown from "../Markdown";
@@ -18,11 +18,16 @@ const getTasks = cache(async (slug: string) => {
   return task;
 });
 
-const getAnswers = cache(async (taskToken: string) => {
-  const task = await db.answer.findMany({
-    where: { taskToken },
-  });
-  return task;
+const getAnswers = cache(async (taskTokens: string[]) => {
+  const answers = await Promise.all(
+    taskTokens.map(async (taskToken) => {
+      const taskAnswers = await db.answer.findMany({
+        where: { taskToken },
+      });
+      return taskAnswers;
+    })
+  );
+  return answers.flat();
 });
 
 export default async function TestDetailsPage({
@@ -30,11 +35,17 @@ export default async function TestDetailsPage({
 }: TestDetailsPageProps) {
   const tasks = await getTasks(slug);
   const tasksArray = tasks.map((task) => task.tasks).flat();
-  const answers = await getAnswers(tasksArray[0].taskToken);
+  const taskTokens = tasksArray.map((task) => task.taskToken);
+  const answers = await getAnswers(taskTokens);
+
+  const answersGroupedByTask = tasksArray.map((task) => ({
+    ...task,
+    answers: answers.filter((answer) => answer.taskToken === task.taskToken),
+  }));
 
   return (
-    <div className="flex flex-col space-y-5">
-      <section className="w-full grow space-y-5 p-10 bg-gradient rounded-3xl ">
+    <div className="flex flex-col items-center space-y-5">
+      <section className="w-fit grow space-y-5 p-10 bg-gradient rounded-3xl ">
         <div className="flex items-center gap-4 m-5 bg-background p-5 rounded-xl text-primary">
           {logoUrl && (
             <Image
@@ -69,24 +80,29 @@ export default async function TestDetailsPage({
         </div>
       </section>
       <h1 className="text-xl font-bold">Tasks</h1>
-      {tasksArray.map((task, index) => (
-        <section className="w-full grow space-y-5 p-10 bg-gradient rounded-3xl ">
+      {answersGroupedByTask.map((taskWithAnswers, index) => (
+        <section key={taskWithAnswers.taskToken} className="w-full grow space-y-5 p-10 bg-gradient rounded-3xl ">
           <div className="flex items-center gap-4 bg-background p-5 rounded-xl text-primary">
             <div>
               <div>
                 <p className="font-semibold">
                   <span>
-                    {task.type === "problem" ? "Problem" : "Test"} question №
+                    {taskWithAnswers.type === "problem" ? "Problem" : "Test"} question №
                     {index + 1}
                   </span>
                 </p>
               </div>
               <div className="text-muted-foreground">
                 <p className="flex items-center gap-2">
-                <span>Ponderation is {task.ponderation}</span>
+                  <span>Ponderation is {taskWithAnswers.ponderation}</span>
                 </p>
                 <p className="flex items-center gap-2">
-                  <span>The question is: <br /> <span className="font-semibold text-base bg-gradient rounded-md p-1 text-background">{task.question}</span></span>
+                  <span>
+                    The question is: <br />{" "}
+                    <span className="font-semibold text-base bg-gradient rounded-md p-1 text-background">
+                      {taskWithAnswers.question}
+                    </span>
+                  </span>
                 </p>
               </div>
             </div>
@@ -96,7 +112,7 @@ export default async function TestDetailsPage({
               <p className="font-semibold text-md ml-2">Multiple Answers</p>
               <p className="font-semibold text-md mr-2">Correct</p>
             </div>
-            {answers.map((answer) => (
+            {taskWithAnswers.answers.map((answer) => (
               <div
                 key={answer.answerId}
                 className="flex gap-1 m-1 bg-background justify-between p-5 rounded-md text-primary"

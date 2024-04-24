@@ -24,7 +24,7 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
           href={item.link}
           styles={`max-lg:hidden min-w-fit p-3 rounded-2xl ${
             pathName === item.link &&
-            "bg-red-400 font-bold text-white"
+            "bg-gradient font-bold text-white"
           }`}
         >
           {item.label}

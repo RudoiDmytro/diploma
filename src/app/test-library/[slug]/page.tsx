@@ -46,13 +46,13 @@ export default async function page({ params: { slug } }: PageProps) {
     <div className="flex flex-col items-center max-w-7xl m-auto">
       <main className="flex flex-col px-4 max-w-7xl m-auto my-10 md:flex-row items-center gap-5 md:items-start">
         <TestDetailsPage task={assessment} />
-        <aside>
+        <aside className="flex flex-col gap-5">
           <Button asChild>
-            <button className="w-40 md:w-fit">Apply now</button>
+            <button className="w-40 md:w-fit">Take assingment</button>
           </Button>
+          <AddTasks slug={slug} />
         </aside>
       </main>
-      <AddTasks slug={slug} />
     </div>
   );
 }
