@@ -83,66 +83,62 @@ model Feedback {
 }
 
 model Assessment {
-  slug        String   @id @db.VarChar(2000)
-  title       String   @db.VarChar(500)
-  duration    DateTime
+  slug        String    @id @db.VarChar(2000)
+  title       String    @db.VarChar(500)
+  duration    String    @db.VarChar(500)
+  endTime     DateTime?
   description String?
-  approved    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  companyName String    @db.VarChar(300)
+  logoUrl     String?   @db.VarChar(2000)
+  approved    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   score       Int?
   tasks       Task[]
-  user        User?    @relation(fields: [userId], references: [userId])
+  user        User?     @relation(fields: [userId], references: [userId])
   userId      Int?
-  Result      Result[]
+  results     Result[]
+  category    Category  @relation(fields: [categoryId], references: [categoryId])
+  categoryId  Int
+  skills      Skill[]
 
   @@map("assessments")
 }
 
 model Category {
-  categoryId Int    @id @default(autoincrement())
-  naming     String @unique @db.VarChar(100)
+  categoryId Int          @id @default(autoincrement())
+  naming     String       @unique @db.VarChar(100)
   job        Job[]
+  assessment Assessment[]
 
   @@map("categories")
 }
 
 model Skill {
-  skillId          Int     @id @default(autoincrement())
-  skillName        String  @unique @db.VarChar(300)
-  requiredLevel    String? @db.VarChar(100)
-  proficientyLevel String? @db.VarChar(100)
-  job              Job?    @relation(fields: [jobSlug], references: [slug])
-  user             User?   @relation(fields: [userId], references: [userId])
-  userId           Int?
-  jobSlug          String? @db.VarChar(2000)
+  skillId    Int          @id @default(autoincrement())
+  skillName  String       @unique @db.VarChar(300)
+  job        Job[]
+  user       User[]
+  assessment Assessment[]
 
-  @@map("tags")
+  @@map("skills")
 }
 
 model Task {
   taskToken       String     @id @db.VarChar(2000)
-  type            TaskType
+  type            String     @db.VarChar(20)
   taskFileUrl     String?    @db.VarChar(2000)
   question        String?
-  position        Int
   ponderation     Int
   assessment      Assessment @relation(fields: [assessment_slug], references: [slug])
   assessment_slug String     @db.VarChar(2000)
   answers         Answer[]
-  Result          Result?
 
   @@map("tasks")
 }
 
-enum TaskType {
-  PROBLEM
-  TEST
-}
-
 model Answer {
   answerId    Int     @id @default(autoincrement())
-  score       Int
   description String?
   correct     Boolean
   task        Task    @relation(fields: [taskToken], references: [taskToken])
@@ -157,7 +153,6 @@ model Result {
   assessmentDate DateTime
   assessment     Assessment @relation(fields: [assessmentSlug], references: [slug])
   user           User       @relation(fields: [userId], references: [userId])
-  Task           Task       @relation(fields: [taskToken], references: [taskToken])
   assessmentSlug String     @db.VarChar(2000)
   userId         Int
   taskToken      String     @unique @db.VarChar(2000)

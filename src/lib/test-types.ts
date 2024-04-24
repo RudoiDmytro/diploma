@@ -1,4 +1,1 @@
-export enum testTypes {
-    Problem = "Problem",
-    Test = "Test"
-}
+export const testTypes = ["Problem", "Test"];

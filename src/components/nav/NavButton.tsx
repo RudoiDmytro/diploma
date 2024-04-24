@@ -12,7 +12,7 @@ export default function NavButton({
   return (
     <Link
       href={href}
-      className={`flex h-10 font-semibold items-center justify-center hover:bg-slate-300 shadow-inner ${styles}`}
+      className={`flex h-10 font-semibold items-center justify-center hover:bg-slate-300 hover:text-black shadow-inner ${styles}`}
     >
       {children}
     </Link>

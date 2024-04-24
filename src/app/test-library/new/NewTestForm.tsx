@@ -1,8 +1,7 @@
 "use client";
 import H1 from "@/components/ui/h1";
-import { createJobValues } from "@/lib/validation";
 import { useForm, Controller, get } from "react-hook-form";
-import { createJobSchema } from "../../../lib/validation";
+import { createTestSchema, createTestValues } from "../../../lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -14,19 +13,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Select from "@/components/ui/select";
-import { jobTypes, locationTypes } from "@/lib/job-types";
-import LocationInput from "@/components/job/LocationInput";
-import { X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import RichTextEditor from "@/components/RichTextEditor";
 import { draftToMarkdown } from "markdown-draft-js";
 import LoadingButton from "@/components/LoadingButton";
-import { createJobPosting } from "./actions";
-import { useState, useEffect } from "react";
 import { Category, Skill } from "@prisma/client";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { createTestPosting } from "./actions";
+import { testTypes } from "@/lib/test-types";
+import { useEffect, useState } from "react";
+import FileInput from "@/components/FileInput";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 const CheckboxField = ({
   skill,
@@ -37,7 +45,7 @@ const CheckboxField = ({
 }) => (
   <Controller
     control={control}
-    name={`requiredSkills.${skill.skillId}`}
+    name={`skills.${skill.skillId}`}
     render={({ field }) => (
       <div className="flex items-center space-x-2">
         <Checkbox
@@ -53,10 +61,16 @@ const CheckboxField = ({
   />
 );
 
-export default function NewJobForm() {
-  const form = useForm<createJobValues>({
-    resolver: zodResolver(createJobSchema),
+export default function NewTestForm() {
+  const form = useForm<createTestValues>({
+    resolver: zodResolver(createTestSchema),
   });
+
+  const accept = {
+    "image/png": [".png"],
+    "image/jpeg": [".jpg", ".jpeg"],
+  };
+
 
   const [categories, setCategories] = useState([]);
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -67,7 +81,7 @@ export default function NewJobForm() {
   const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
   const [newSkillName, setNewSkillName] = useState("");
-  
+
   useEffect(() => {
     const storedSkills = localStorage.getItem("selectedSkills");
     if (storedSkills) {
@@ -115,14 +129,12 @@ export default function NewJobForm() {
     fetchCategories();
   }, []);
 
-
-
   useEffect(() => {
-    const currentValue = get(form.control, "requiredSkills.value");
+    const currentValue = get(form.control, "skills.value");
     const updatedValue = currentValue?.filter((id) =>
       selectedSkills.includes(id)
     );
-    form.setValue("requiredSkills", updatedValue || []);
+    form.setValue("skills", updatedValue || []);
   }, [selectedSkills, form.control, form.setValue]);
 
   const handleSkillsDialogOpen = () => {
@@ -149,7 +161,6 @@ export default function NewJobForm() {
       : [...selectedSkills, skill];
     if (isMounted) {
       setSelectedSkills(updatedSkills);
-      console.log(selectedSkills);
       localStorage.setItem("selectedSkills", JSON.stringify(updatedSkills));
     }
   };
@@ -184,7 +195,7 @@ export default function NewJobForm() {
     if (value === null || value === undefined) {
       return;
     }
-    if (key === "requiredSkills") {
+    if (key === "requiredSkills" || key === "tests") {
       formData.append(key, JSON.stringify(value));
     } else if (value instanceof File) {
       formData.append(key, value);
@@ -201,22 +212,20 @@ export default function NewJobForm() {
     }
   };
 
-  const onSubmit = async (values: createJobValues) => {
+  const onSubmit = async (data: createTestValues) => {
     const formData = new FormData();
-    console.log(values);
+
     const skillIds = selectedSkills.map((skill) => skill.skillId);
+    formData.append("skills", JSON.stringify(skillIds));
 
-    formData.append("requiredSkills", JSON.stringify(skillIds));
-
-    Object.entries(values).forEach(([key, value]) => {
-      if (key !== "requiredSkills") {
+    Object.entries(data).forEach(([key, value]) => {
+      if (key !== "skills" && key !== "tests") {
         appendToFormData(formData, key, value);
       }
     });
 
     try {
-      await createJobPosting(formData);
-
+      await createTestPosting(formData);
       localStorage.removeItem("selectedSkills");
     } catch (error) {
       alert(error);
@@ -226,9 +235,7 @@ export default function NewJobForm() {
   const {
     handleSubmit,
     watch,
-    trigger,
     control,
-    setValue,
     setFocus,
     formState: { isSubmitting },
   } = form;
@@ -238,14 +245,14 @@ export default function NewJobForm() {
       <div className="space-y-5 text-center">
         <H1>Find your perfect job applicant</H1>
         <p className="text-muted-foreground">
-          Get your job posting seen by thousands of job seekers
+          Get your task posting seen by thousands of job seekers
         </p>
       </div>
       <div className="space-y-6 border rounded-lg p-4">
         <div>
-          <h2 className="font-semibold">Job details</h2>
+          <h2 className="font-semibold">Task details</h2>
           <p className="text-muted-foreground">
-            Provide a job description and detail
+            Provide a task description and detail
           </p>
         </div>
         <Form {...form}>
@@ -259,7 +266,7 @@ export default function NewJobForm() {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Job title</FormLabel>
+                  <FormLabel>Task title</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Frontend Developer" {...field} />
                   </FormControl>
@@ -272,15 +279,15 @@ export default function NewJobForm() {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Job type</FormLabel>
+                  <FormLabel>Task type</FormLabel>
                   <FormControl>
                     <Select {...field} defaultValue="">
                       <option value="" hidden>
                         Select an option
                       </option>
-                      {jobTypes.map((jobType) => (
-                        <option value={jobType} key={jobType}>
-                          {jobType}
+                      {testTypes.map((testType) => (
+                        <option value={testType} key={testType}>
+                          {testType}
                         </option>
                       ))}
                     </Select>
@@ -294,7 +301,7 @@ export default function NewJobForm() {
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company</FormLabel>
+                  <FormLabel>Company name</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -304,128 +311,45 @@ export default function NewJobForm() {
             />
             <FormField
               control={control}
-              name="companyLogo"
-              render={({ field: { value, ...fieldValues } }) => (
-                <FormItem>
-                  <FormLabel>Company logo</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...fieldValues}
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        fieldValues.onChange(file);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="locationType"
+              name="endDate"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
+                <FormItem className="flex flex-col">
+                  <FormLabel>End date</FormLabel>
                   <FormControl>
-                    <Select
-                      {...field}
-                      defaultValue=""
-                      onChange={(e) => {
-                        field.onChange(e);
-                        if (e.currentTarget.value === "Remote")
-                          trigger("location");
-                      }}
-                    >
-                      <option value="" hidden>
-                        Select an option
-                      </option>
-                      {locationTypes.map((locationTypes) => (
-                        <option value={locationTypes} key={locationTypes}>
-                          {locationTypes}
-                        </option>
-                      ))}
-                    </Select>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(new Date(field.value), "P")
+                            ) : (
+                              <span>Choose date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Office location</FormLabel>
-                  <FormControl>
-                    <LocationInput
-                      onLocationSelected={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  {watch("location") && (
-                    <div className="flex items-center gap-1">
-                      <button type="button">
-                        <X
-                          size={20}
-                          onClick={() =>
-                            setValue("location", "", { shouldValidate: true })
-                          }
-                        />
-                      </button>
-                      <span className="text-sm">{watch("location")}</span>
-                    </div>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="space-y-2">
-              <Label htmlFor="applicationEmail">How to apply</Label>
-              <div className="flex justify-between">
-                <FormField
-                  control={control}
-                  name="applicationEmail"
-                  render={({ field }) => (
-                    <FormItem className="grow">
-                      <FormControl>
-                        <div className="flex items-center">
-                          <Input
-                            id="applicationEmail"
-                            placeholder="Email"
-                            type="email"
-                            {...field}
-                          />
-                          <span className="mx-2">or</span>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="applicationUrl"
-                  render={({ field }) => (
-                    <FormItem className="grow">
-                      <FormControl>
-                        <Input
-                          placeholder="Website"
-                          type="url"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            trigger("applicationEmail");
-                          }}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
+            <FileInput accept={accept} name="add logo" />
             <FormField
               control={control}
               name="description"
@@ -441,6 +365,19 @@ export default function NewJobForm() {
                       }
                       ref={field.ref}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="duration"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Duration</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -493,14 +430,14 @@ export default function NewJobForm() {
             />
             <FormField
               control={form.control}
-              name="requiredSkills"
-              render={({ field }) => (
+              name="skills"
+              render={() => (
                 <FormItem>
                   <FormLabel>
                     <p>Required Skills</p>
                     <button
                       type="button"
-                      className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+                      className="text-red-700 hover:text-white border border-red-700 hover:border-0 hover:bg-gradient focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
                       onClick={handleSkillsDialogOpen}
                     >
                       Select Skills
@@ -648,19 +585,6 @@ export default function NewJobForm() {
                 </div>
               </Dialog>
             </Transition>
-            <FormField
-              control={control}
-              name="salary"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Salary</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <LoadingButton type="submit" loading={isSubmitting}>
               Submit
             </LoadingButton>

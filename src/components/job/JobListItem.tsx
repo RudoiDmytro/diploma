@@ -4,13 +4,32 @@ import Image from "next/image";
 import { formatMoney, formatDate } from "@/lib/utils";
 import Badge from "../Badge";
 import companyLogoPlaceholder from "@/assets/building-2.svg";
+import { db } from "@/lib/db";
+import { cache } from "react";
 
 type JobListItemProps = {
   job: Job;
 };
 
-export default function JobListItem({
+const getSkills = cache(async (slug: string) => {
+  const skills = await db.job.findUnique({
+    where: { slug },
+    select: { requiredSkills: true },
+  });
+  return skills?.requiredSkills.slice(0, 3);;
+});
+
+const getCategoryName = cache(async (categoryId: number) => {
+  const categoryName = await db.category.findUnique({
+    where: { categoryId },
+    select: { naming: true },
+  });
+  return categoryName?.naming;
+});
+
+export default async function JobListItem({
   job: {
+    slug,
     title,
     companyName,
     type,
@@ -19,11 +38,16 @@ export default function JobListItem({
     salary,
     companyLogoUrl,
     createdAt,
-    categoryId
+    categoryId,
   },
 }: JobListItemProps) {
+  const skills = await getSkills(slug);
+  const categoryName = await getCategoryName(categoryId);
+
+  const skillNames = skills?.map((skill) => skill.skillName);
+
   return (
-    <article className="flex md:min-h-full gap-3 rounded-xl border p-4 hover:bg-muted/60">
+    <article className="flex md:min-h-full gap-3 rounded-xl border p-4 hover:bg-muted/50 ">
       <Image
         src={companyLogoUrl || companyLogoPlaceholder}
         alt={`${companyName} logo`}
@@ -60,7 +84,19 @@ export default function JobListItem({
         </div>
       </div>
       <div className="hidden md:flex flex-col shrink-0 items-end justify-between">
-        <Badge>{type}</Badge>
+        <div className="grid-cols-2 space-x-1">
+          <Badge>{type}</Badge>
+          <Badge>{categoryName}</Badge>
+        </div>
+          {skillNames?.map((skillName) => (
+            <div
+              key={skillName}
+              id="badge-red"
+              className="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400"
+            >
+              {skillName}
+            </div>
+          ))}
         <span className="flex items-center gap-2 text-muted-foreground">
           <Clock size={16} />
           {formatDate(createdAt)}

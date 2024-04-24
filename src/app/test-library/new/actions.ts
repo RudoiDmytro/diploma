@@ -1,60 +1,88 @@
 "use server";
 
 import { toSlug } from "@/lib/utils";
-import { createJobSchema } from "@/lib/validation";
+import { createTestSchema } from "@/lib/validation";
 import { nanoid } from "nanoid";
 import { put } from "@vercel/blob";
 import path from "path";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
-export async function createJobPosting(formData: FormData) {
+export async function createTestPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
-
   const {
     title,
-    type,
     companyName,
-    companyLogo,
-    location,
-    locationType,
-    applicationEmail,
-    applicationUrl,
+    logo,
     description,
-    salary,
-  } = createJobSchema.parse(values);
-
+    category,
+    newCategory,
+    skills,
+    endDate,
+    duration,
+  } = createTestSchema.parse(values);
+  console.log(formData);
   const slug = `${toSlug(title)}-${nanoid(10)}`;
+  let logoUrl: string | undefined = undefined;
 
-  let companyLogoUrl: string | undefined = undefined;
-
-  if (companyLogo) {
-    const blob = await put(
-      `company_logos/${slug}${path.extname(companyLogo.name)}`,
-      companyLogo,
-      {
-        access: "public",
-        addRandomSuffix: false,
-      }
-    );
-    companyLogoUrl = blob.url;
+  if (logo) {
+    const blob = await put(`logos/${slug}${path.extname(logo.name)}`, logo, {
+      access: "public",
+      addRandomSuffix: false,
+    });
+    logoUrl = blob.url;
   }
 
-  await db.job.create({
-    data: {
-      slug,
-      title: title.trim(),
-      type,
-      companyName: companyName.trim(),
-      companyLogoUrl,
-      locationType,
-      location,
-      applicationEmail: applicationEmail?.trim(),
-      applicationUrl: applicationUrl?.trim(),
-      description: description.trim(),
-      salary: parseInt(salary),
-    },
-  });
+  let categoryId: number;
 
-  redirect("/jobs/job-submitted");
+  if (category === "new") {
+    const newCategoryData = await db.category.create({
+      data: {
+        naming: newCategory!.trim(),
+      },
+    });
+    categoryId = newCategoryData.categoryId;
+  } else {
+    categoryId = parseInt(category);
+  }
+
+  let requiredSkillsArray: number[] = [];
+
+  if (typeof skills === "string") {
+    try {
+      requiredSkillsArray = JSON.parse(skills);
+    } catch (error) {
+      console.error("Failed to parse requiredSkills:", error);
+    }
+  }
+
+  requiredSkillsArray = requiredSkillsArray.filter(
+    (skillId) => typeof skillId === "number"
+  ) as number[];
+
+  const requiredSkillsConnect = requiredSkillsArray.map((skillId: number) => ({
+    skillId,
+  }));
+
+  try {
+    await db.assessment.create({
+      data: {
+        slug,
+        title: title.trim(),
+        companyName: companyName.trim(),
+        description: description.trim(),
+        categoryId,
+        logoUrl,
+        skills: {
+          connect: requiredSkillsConnect,
+        },
+        duration,
+        endTime: endDate,
+      },
+    });
+  } catch (err) {
+    alert(err);
+  }
+
+  redirect("/test-library/test-submitted");
 }

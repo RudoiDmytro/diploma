@@ -4,10 +4,9 @@ import PcNav from "./PcNav";
 import MobileNav from "./MobileNav";
 import { Menu, X } from "lucide-react";
 import { Button } from "../ui/button";
-import Link from "next/link";
 import EmployerPanel from "./employer/EmployerPanel";
 import UserPanel from "./user/UserPanel";
-
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 const navItems = [
   { label: "Skills&Work", link: "/", isFocused: true },
@@ -21,26 +20,21 @@ const navItems = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const session = false;
   const isEmployer = false;
   return (
     <div className="flex min-w-full flex-col p-4 justify-center text-left font-button bg-gray-100 shadow-md">
       <header className="flex h-8 items-center justify-around mx-auto gap-10 text-left text-sm text-gray-900 font-button space-x-48">
         <PcNav navItems={navItems} />
         <div className="flex space-x-6">
-          {session ? (
-            isEmployer ? (
-              <EmployerPanel />
-            ) : (
-              <UserPanel />
-            )
-          ) : (
-            <Link href="/login">
-              <Button className="flex h-10 ml-44 font-semibold items-center justify-center bg-blue-200 rounded-2xl text-black hover:text-white hover:bg-red-400">
-                Login
-              </Button>
-            </Link>
-          )}
+          <SignedOut>
+            <SignInButton>
+              <Button>Sign in</Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            {isEmployer ? <EmployerPanel /> : <UserPanel />}
+            <UserButton />
+          </SignedIn>
         </div>
         <button className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
           {!isOpen ? <Menu /> : <X />}

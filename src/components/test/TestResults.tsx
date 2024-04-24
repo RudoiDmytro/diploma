@@ -9,7 +9,7 @@ type TestResultsProps = {
 };
 
 export default async function TestResults({
-  filterValues: { q, type, tags },
+  filterValues: { q, type, skills, category },
 }: TestResultsProps) {
   const searchString = q
     ?.split(" ")
@@ -20,17 +20,37 @@ export default async function TestResults({
     ? {
         OR: [
           { title: { search: searchString } },
-          { categoryName: { search: searchString } },
         ],
+      }
+    : {};
+
+  const skillsFilter: Prisma.AssessmentWhereInput = skills
+    ? {
+        skills: {
+          some: {
+            skillName: {
+              in: skills.split(","),
+            },
+          },
+        },
+      }
+    : {};
+  const categoryFilter: Prisma.AssessmentWhereInput = category
+    ? {
+        category: {
+          naming: {
+            equals: category,
+          },
+        },
       }
     : {};
 
   const where: Prisma.AssessmentWhereInput = {
     AND: [
       searchFilter,
-      type ? { type } : {},
-      tags ? { type } : {},
-      { approved: true },
+      skillsFilter,
+      categoryFilter,
+      { approved: false },
     ],
   };
 
@@ -40,9 +60,9 @@ export default async function TestResults({
   });
 
   return (
-    <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 place-content-start">
+    <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 place-content-start col-span-2">
       {assessment.map((test: Assessment) => (
-        <Link key={test.id} href={`/assessment/${test.slug}`} className="block">
+        <Link key={test.slug} href={`/test-library/${test.slug}`} className="block">
           <TestListItem test={test} />
         </Link>
       ))}

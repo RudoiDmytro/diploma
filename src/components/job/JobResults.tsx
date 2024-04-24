@@ -9,7 +9,7 @@ type JobResultsProps = {
 };
 
 export default async function JobResults({
-  filterValues: { q, type, location, remote },
+  filterValues: { q, type, location, remote, skills, category },
 }: JobResultsProps) {
   const searchString = q
     ?.split(" ")
@@ -28,12 +28,35 @@ export default async function JobResults({
       }
     : {};
 
+  const skillsFilter: Prisma.JobWhereInput = skills
+    ? {
+        requiredSkills: {
+          some: {
+            skillName: {
+              in: skills.split(","),
+            },
+          },
+        },
+      }
+    : {};
+  const categoryFilter: Prisma.JobWhereInput = category
+    ? {
+        category: {
+          naming: {
+            equals: category,
+          },
+        },
+      }
+    : {};
+
   const where: Prisma.JobWhereInput = {
     AND: [
       searchFilter,
       type ? { type } : {},
       location ? { location } : {},
       remote ? { locationType: "Remote" } : {},
+      skillsFilter,
+      categoryFilter,
       { approved: false },
     ],
   };
@@ -44,7 +67,7 @@ export default async function JobResults({
   });
 
   return (
-    <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 place-content-start">
+    <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 place-content-start col-span-2">
       {jobs.map((job: Job) => (
         <Link key={job.slug} href={`/jobs/${job.slug}`} className="block">
           <JobListItem job={job} />

@@ -1,45 +1,62 @@
+import { testTypes } from "@/lib/test-types";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import Select from "../ui/select";
 import { TestFilterValues, testFilterSchema } from "@/lib/validation";
 import { redirect } from "next/navigation";
 import FormSubmitButton from "../FormSubmitButton";
-import { Category } from "@prisma/client";
-import { GetCategoryTags } from "@/app/api/testFilter/tags/CategoryTags";
+import { db } from "@/lib/db";
+import dynamic from "next/dynamic";
+import SkillSelector from "../SkillSelector";
+
+const CategoryButton = dynamic(() => import("../CategoryButton"), {
+  ssr: false,
+});
 
 const filterJobs = async (formData: FormData) => {
   "use server";
+
   const values = Object.fromEntries(formData.entries());
 
-  const { q, type, category } = testFilterSchema.parse(values);
-  const tags = await GetCategoryTags(category);
+  const { q, type, skills, category } = testFilterSchema.parse(values);
 
   const searchParams = new URLSearchParams({
     ...(q && { q: q.trim() }),
     ...(type && { type }),
+    ...(skills && { skills }),
     ...(category && { category }),
-    ...(tags && { tags }),
   });
 
   redirect(`/test-library/?${searchParams.toString()}`);
 };
 
-type JobFilterSidebarProps = {
+type TestFilterSidebarProps = {
   defaultValues: TestFilterValues;
 };
 
-export default async function JobFilterSidebar({
+export default async function TestFilterSidebar({
   defaultValues,
-}: JobFilterSidebarProps) {
-  const formData = await fetch(`http://localhost:3000/api/testFilter`, {
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((data) =>
-      data
-        .map((category: Category) => category)
-        .filter((category: Category) => category.category !== null)
-    );
+}: TestFilterSidebarProps) {
+  const [categories, skills] = await Promise.all([
+    db.assessment.findMany({
+      distinct: ["categoryId"],
+      select: { category: true },
+    }),
+    db.assessment.findMany({ distinct: ["slug"],
+      select: { skills: true },
+     }),
+  ]);
+
+  const skill = skills
+    .map((skill) =>
+      skill.skills.map((skill) => ({
+        skillName: skill.skillName,
+      }))
+    )
+    .flat();
+
+  const uniqueSkills = [...new Set(skill.map((item) => item.skillName))];
+
   return (
     <aside className="lg:w-[300px] sticky top-0 bg-background border rounded-lg h-fit p-4">
       <form action={filterJobs} key={JSON.stringify(defaultValues)}>
@@ -49,29 +66,36 @@ export default async function JobFilterSidebar({
             <Input
               id="q"
               name="q"
-              placeholder="Title, company, etc."
+              placeholder="Title, etc."
               defaultValue={defaultValues.q}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="type">Type</Label>
             <Select
-              id="category"
-              name="category"
-              defaultValue={defaultValues.category || ""}
+              id="type"
+              name="type"
+              defaultValue={defaultValues.type || ""}
             >
-              <option value="">All categories</option>
-              {formData.map((categories: Category) => (
-                <option value={categories.category} key={categories.category}>
-                  {categories.category}
+              <option value="">All types</option>
+              {testTypes.map((type) => (
+                <option value={type} key={type}>
+                  {type}
                 </option>
               ))}
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            {formData.map((categories: Category) => (
-              <p>{categories.category}</p>
-            ))}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="category">Category</Label>
+            <div className="grid grid-cols-2 gap-1 justify-around">
+              {categories.map((category) => (
+                <CategoryButton key={category.category?.categoryId} category={category.category} redirectUrl={"/test-library"} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="skills">Skills</Label>
+            <SkillSelector skillNames={uniqueSkills} redirectUrl={"/test-library"} />
           </div>
           <FormSubmitButton type="submit" className="w-full">
             Filter tests
