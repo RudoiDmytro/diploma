@@ -1,7 +1,6 @@
-import React from 'react'
+import Spinner from "@/components/ui/spinner";
+import React from "react";
 
 export default function loading() {
-  return (
-    <div>loading</div>
-  )
+  return <Spinner />;
 }

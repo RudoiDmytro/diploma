@@ -85,7 +85,7 @@ export default function Jobs({
           </Button>
         </aside>
       </div>
-      <section className="grid grid-flow-col auto-cols-auto gap-3 lg:flex-row ">
+      <section className="flex flex-col space-y-3 lg:flex-row-reverse gap-3">
         <JobFilterSidebar defaultValues={filterValues} />
         <JobResults filterValues={filterValues} />
       </section>

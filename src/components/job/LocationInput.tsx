@@ -20,7 +20,6 @@ export default forwardRef<HTMLInputElement, LocationInputProps>(
           method: "POST",
           body: JSON.stringify(locationSearchInput),
         }).then((response) => response.json());
-        console.log(data);
         setCities(data);
       };
 

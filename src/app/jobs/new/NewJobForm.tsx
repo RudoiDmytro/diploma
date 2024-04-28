@@ -27,6 +27,7 @@ import { Category, Skill } from "@prisma/client";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import Spinner from "@/components/ui/spinner";
 
 const CheckboxField = ({
   skill,
@@ -67,7 +68,7 @@ export default function NewJobForm() {
   const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
   const [newSkillName, setNewSkillName] = useState("");
-  
+
   useEffect(() => {
     const storedSkills = localStorage.getItem("selectedSkills");
     if (storedSkills) {
@@ -114,8 +115,6 @@ export default function NewJobForm() {
     };
     fetchCategories();
   }, []);
-
-
 
   useEffect(() => {
     const currentValue = get(form.control, "requiredSkills.value");
@@ -178,7 +177,7 @@ export default function NewJobForm() {
   };
 
   if (error) return <div>Failed to load: {error}</div>;
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner />;
 
   const appendToFormData = (formData, key, value) => {
     if (value === null || value === undefined) {

@@ -60,7 +60,7 @@ export default async function TestResults({
   });
 
   return (
-    <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 place-content-start col-span-2">
+    <div className="grid grid-cols-2 auto-cols-auto auto-rows-auto gap-2 max-md:grid-cols-1 col-span-2">
       {assessment.map((test: Assessment) => (
         <Link key={test.slug} href={`/test-library/${test.slug}`} className="block">
           <TestListItem test={test} />

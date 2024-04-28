@@ -44,8 +44,8 @@ export default function CategoryButton({
       id="badge-red"
       onClick={handleCategoryClick}
       className={`inline-block text-center rounded-lg ${
-        isSelected ? "bg-red-300" : "bg-red-100"
-      }  text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400`}
+        isSelected ? "gradient2" : "gradient1"
+      }  text-background text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-foreground`}
     >
       <span>{category.naming}</span>
     </button>

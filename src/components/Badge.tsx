@@ -3,5 +3,9 @@ type BadgeProps = {
 };
 
 export default function Badge({ children }: BadgeProps) {
-  return <span className="border px-2 rounded py-1 bg-muted text-muted-foreground text-sm font-medium">{children}</span>;
+  return (
+    <span className="border px-2 rounded-md py-1 text-card bg-card-foreground text-sm font-medium">
+      {children}
+    </span>
+  );
 }

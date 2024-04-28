@@ -52,8 +52,8 @@ export default function SkillSelector({
           key={skill}
           onClick={() => handleSkillClick(skill)}
           type="button"
-          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${
-            selectedSkills.includes(skill) ? "bg-red-300" : "bg-red-100"
+          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium text-background  ${
+            selectedSkills.includes(skill) ? "gradient2" : "gradient1"
           }`}
         >
           {skill}

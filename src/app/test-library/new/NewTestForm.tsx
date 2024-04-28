@@ -24,7 +24,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { createTestPosting } from "./actions";
 import { testTypes } from "@/lib/test-types";
 import { useEffect, useState } from "react";
-import FileInput from "@/components/FileInput";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -35,6 +34,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import Spinner from "@/components/ui/spinner";
 
 const CheckboxField = ({
   skill,
@@ -70,7 +70,6 @@ export default function NewTestForm() {
     "image/png": [".png"],
     "image/jpeg": [".jpg", ".jpeg"],
   };
-
 
   const [categories, setCategories] = useState([]);
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -189,7 +188,7 @@ export default function NewTestForm() {
   };
 
   if (error) return <div>Failed to load: {error}</div>;
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner />;
 
   const appendToFormData = (formData, key, value) => {
     if (value === null || value === undefined) {
@@ -349,7 +348,27 @@ export default function NewTestForm() {
                 </FormItem>
               )}
             />
-            <FileInput accept={accept} name="add logo" />
+            <FormField
+              control={control}
+              name="logo"
+              render={({ field: { value, ...fieldValues } }) => (
+                <FormItem>
+                  <FormLabel>Add a logo</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...fieldValues}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        fieldValues.onChange(file);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={control}
               name="description"
@@ -437,7 +456,7 @@ export default function NewTestForm() {
                     <p>Required Skills</p>
                     <button
                       type="button"
-                      className="text-red-700 hover:text-white border border-red-700 hover:border-0 hover:bg-gradient focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+                      className="gradient1 hover:gradient2 text-background focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2"
                       onClick={handleSkillsDialogOpen}
                     >
                       Select Skills
@@ -450,12 +469,12 @@ export default function NewTestForm() {
                           <div
                             key={skill.skillId}
                             id="badge-dismiss-red"
-                            className="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400"
+                            className="inline-flex items-center bg-card text-foreground text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-foreground"
                           >
                             {skill.skillName}
                             <button
                               type="button"
-                              className="inline-flex items-center p-1 ms-2 text-sm text-red-400 bg-transparent rounded-sm hover:bg-red-200 hover:text-red-900 dark:hover:bg-red-800 dark:hover:text-red-300"
+                              className="inline-flex items-center p-1 ms-2 text-sm text-foreground bg-transparent rounded-sm hover:text-background hover:gradient1 "
                               data-dismiss-target="#badge-dismiss-red"
                               aria-label="Remove"
                               onClick={() => {
@@ -533,10 +552,10 @@ export default function NewTestForm() {
                     leaveFrom="opacity-100 scale-100"
                     leaveTo="opacity-0 scale-95"
                   >
-                    <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                    <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden align-middle transition-all transform bg-popover shadow-xl rounded-2xl">
                       <Dialog.Title
                         as="h3"
-                        className="text-lg font-medium leading-6 text-gray-900"
+                        className="text-lg font-medium leading-6 text-popover-foreground"
                       >
                         Select Required Skills
                       </Dialog.Title>
@@ -564,7 +583,7 @@ export default function NewTestForm() {
                           />
                           <button
                             type="button"
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded ml-2"
+                            className="gradient1 hover:gradient2 text-background px-2 py-1 rounded ml-2"
                             onClick={handleNewSkillSubmit}
                           >
                             Add
@@ -574,7 +593,7 @@ export default function NewTestForm() {
                       <div className="mt-4">
                         <button
                           type="button"
-                          className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                          className="inline-flex justify-center px-4 py-2 text-sm font-medium text-background gradient1 border border-transparent rounded-md hover:gradient2 focus:outline-none focus-visible:ring-2"
                           onClick={handleSkillsDialogClose}
                         >
                           Confirm
