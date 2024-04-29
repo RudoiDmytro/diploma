@@ -44,7 +44,7 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
   };
 
   return (
-    <nav className="sticky top-0 z-10 bg-white backdrop-filter backdrop-blur-lg bg-opacity-20 border-b border-gray-200 w-full">
+    <nav className="sticky top-0 z-10 bg-white backdrop-filter backdrop-blur-lg bg-opacity-10 border-b border-muted w-full">
       <div className=" max-w-7xl mx-auto px-4">
         <div className="flex items-center space-x-5 justify-between h-16">
           <Image src={logo} alt="Skills&Work logo" width={40} height={40} />
@@ -53,10 +53,10 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
               <NavButton
                 key={index}
                 href={item.link}
-                styles={`max-lg:hidden min-w-fit p-3 rounded-2xl ${
+                styles={`max-lg:hidden min-w-fit p-3 rounded-2xl hover:transition-colors duration-500 ease-in-out ${
                   pathName === item.link || pathName.startsWith(`${item.link}/`)
-                    ? "gradient2 font-bold text-white"
-                    : "hover:gradient2"
+                    ? "gradient2 font-bold text-white hover:gradient2"
+                    : "hover:gradient1"
                 }`}
               >
                 {item.label}

@@ -48,8 +48,6 @@ export default async function TestDetailsPage({
   const answers = await getAnswers(taskTokens);
   const data = await getServerSession();
 
-  console.log(data);
-
   const answersGroupedByTask = tasksArray.map((task) => ({
     ...task,
     answers: answers.filter((answer) => answer.taskToken === task.taskToken),

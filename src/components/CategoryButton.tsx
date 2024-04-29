@@ -44,8 +44,8 @@ export default function CategoryButton({
       id="badge-red"
       onClick={handleCategoryClick}
       className={`inline-block text-center rounded-lg ${
-        isSelected ? "gradient2" : "gradient1"
-      }  text-background text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-foreground`}
+        isSelected ? "gradient2 text-background hover:none" : "bg-background"
+      }  hover:text-background hover:bg-card-foreground hover:transition-colors duration-500 ease-in-out border`}
     >
       <span>{category.naming}</span>
     </button>

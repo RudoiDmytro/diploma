@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import TestDetailsPage from "@/components/test/TestDetailsPage";
 import { Assessment } from "@prisma/client";
 import AddTasks from "@/components/test/addTasks";
+import { getServerSession } from "next-auth";
 
 interface PageProps {
   params: { slug: string };
@@ -41,6 +42,7 @@ export async function generateMetadata({
 
 export default async function page({ params: { slug } }: PageProps) {
   const assessment = await getAssessment(slug);
+  const data = await getServerSession();
 
   return (
     <div className="flex flex-col items-center  max-w-7xl m-auto">
@@ -50,7 +52,7 @@ export default async function page({ params: { slug } }: PageProps) {
           <Button asChild>
             <button className="w-40 md:w-fit">Take assingment</button>
           </Button>
-          <AddTasks slug={slug} />
+          {data && <AddTasks slug={slug} />}
         </aside>
       </main>
     </div>
