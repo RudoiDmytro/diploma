@@ -11,7 +11,6 @@ export async function addTasksToAssessment(formData) {
   const questions = formData.get("questions");
   const taskFilesData = formData.getAll("taskFile");
 
-
   try {
     const assessment = await db.assessment.findUnique({
       where: { slug: assessmentSlug.replace(/['"]+/g, "") },
@@ -35,16 +34,19 @@ export async function addTasksToAssessment(formData) {
       if (taskFilesData) {
         const testFile = taskFilesData[index];
 
-        const blob = await put(
-          `taskFiles/${taskToken}${path.extname(testFile.name)}`,
-          testFile,
-          {
-            access: "public",
-            addRandomSuffix: false,
-          }
-        );
+        // Add a check to ensure that testFile is defined before accessing its properties
+        if (testFile && testFile.name) {
+          const blob = await put(
+            `taskFiles/${taskToken}${path.extname(testFile.name)}`,
+            testFile,
+            {
+              access: "public",
+              addRandomSuffix: false,
+            }
+          );
 
-        taskFileUrl = blob.url;
+          taskFileUrl = blob.url;
+        }
       }
 
       const task = await db.task.create({
@@ -68,7 +70,6 @@ export async function addTasksToAssessment(formData) {
         });
       }
     }
-
   } catch (error) {
     console.error("Error adding tasks to assessment:", error);
   }

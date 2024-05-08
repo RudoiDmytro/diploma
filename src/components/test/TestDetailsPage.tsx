@@ -14,7 +14,6 @@ import {
 
 import { getServerSession } from "next-auth";
 
-
 interface TestDetailsPageProps {
   task: Assessment;
 }
@@ -134,7 +133,8 @@ export default async function TestDetailsPage({
                           </div>
                         </div>
                       </div>{" "}
-                      {taskWithAnswers.taskFileUrl && (
+                      {taskWithAnswers.taskFileUrl &&
+                      /\.(png|jpe?g)$/i.test(taskWithAnswers.taskFileUrl) ? (
                         <div className="relative w-[800px] h-[600px]">
                           <Image
                             src={taskWithAnswers.taskFileUrl}
@@ -143,11 +143,20 @@ export default async function TestDetailsPage({
                             fill
                           />
                         </div>
+                      ) : taskWithAnswers.taskFileUrl && (
+                        <div className="w-full h-full bg-background p-1">
+                          <span>
+                            There is no image for this question added or there
+                            is a problem with the image
+                          </span>
+                        </div>
                       )}
                       <div className="flex flex-col bg-background rounded-md text-primary">
                         <div className="flex flex-row m-2 justify-between">
                           <p className="font-semibold text-md ml-4">Answers</p>
-                          <p className="font-semibold text-md mr-2">Correctness</p>
+                          <p className="font-semibold text-md mr-2">
+                            Correctness
+                          </p>
                         </div>
                         {taskWithAnswers.answers.map((answer) => (
                           <div

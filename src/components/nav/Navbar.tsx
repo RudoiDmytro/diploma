@@ -1,11 +1,6 @@
 "use client";
 import { useState } from "react";
 import PcNav from "./PcNav";
-import MobileNav from "./MobileNav";
-import { Menu, X } from "lucide-react";
-import { Button } from "../ui/button";
-import EmployerPanel from "./employer/EmployerPanel";
-import UserPanel from "./user/UserPanel";
 import { SessionProvider } from "next-auth/react";
 
 const navItems = [
@@ -18,9 +13,6 @@ const navItems = [
 ];
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const isEmployer = false;
   return (
     <SessionProvider>
       <PcNav navItems={navItems} />

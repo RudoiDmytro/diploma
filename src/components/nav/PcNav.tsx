@@ -1,15 +1,17 @@
 "use client";
+
 import NavButton from "@/components/nav/NavButton";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/portfolio.png";
-import { Home, Moon, Slash, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useTheme } from "next-themes";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import SigninButton from "./SigninButton";
+import RegisterModal from "../auth/RegisterModal";
+import Link from "next/link";
 
 type NavItem = {
   label: string;
@@ -30,12 +32,12 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
   useEffect(() => {
     const theme = Cookies.get("theme");
     setIsDarkMode(theme === "dark");
-    setTheme(theme || "light"); // Set the initial theme
+    setTheme(theme || "light");
   }, []);
 
   useEffect(() => {
     setIsDarkMode(theme === "dark");
-  }, [theme]); // Listen for theme changes
+  }, [theme]);
 
   const toggleTheme = () => {
     const newTheme = isDarkMode ? "light" : "dark";
@@ -66,25 +68,17 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
           <div>
             <div className="justify-center space-x-3 flex flex-row items-center transition-all ease-in-out">
               <div className="inline-flex rounded-md shadow-sm " role="group">
-                {status === "unauthenticated" ? (
+                {status === "authenticated" && (
                   <button
                     type="button"
-                    className="inline-flex items-center px-2 py-1 gap-2 text-sm font-medium text-foreground bg-transparent border rounded-s-lg border-foreground hover:bg-muted hover:text-foreground focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white "
+                    className="inline-flex items-center px-2 py-1 gap-2 text-md font-medium text-foreground bg-transparent border rounded-s-lg border-foreground hover:bg-card hover:text-foreground focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white "
                   >
-                    <Link href="/register">Sign-up</Link>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-2 py-1 gap-2 text-sm font-medium text-foreground bg-transparent border rounded-s-lg border-foreground hover:bg-muted hover:text-foreground focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white "
-                  >
-                    Profile
+                    <Link href="/profile">Profile</Link>
                   </button>
                 )}
-
+                {status === "unauthenticated" && <RegisterModal />}
                 <SigninButton />
               </div>
-
               <div className="flex flex-row justify-between toggle">
                 <label
                   htmlFor="dark-toggle"

@@ -7,6 +7,8 @@ import { put } from "@vercel/blob";
 import path from "path";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { options } from "@/components/auth/Options";
+import { getServerSession } from "next-auth";
 
 export async function createTestPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -24,6 +26,7 @@ export async function createTestPosting(formData: FormData) {
   console.log(formData);
   const slug = `${toSlug(title)}-${nanoid(10)}`;
   let logoUrl: string | undefined = undefined;
+  const session = await getServerSession(options);
 
   if (logo) {
     const blob = await put(`logos/${slug}${path.extname(logo.name)}`, logo, {
@@ -78,6 +81,7 @@ export async function createTestPosting(formData: FormData) {
         },
         duration,
         endTime: endDate,
+        userId: session!.user.id,
       },
     });
   } catch (err) {

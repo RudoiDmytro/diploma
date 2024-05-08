@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { hashPassword } from "@/app/api/user/register/route";
 import { NextResponse } from "next/server";
 import { compare } from "bcrypt";
 export async function POST(req: Request) {
@@ -11,17 +10,9 @@ export async function POST(req: Request) {
   try {
     const user = await db.user.findUnique({
       where: { email: email },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        profileImageUrl: true,
-        role: true,
-        password: true,
-      },
     });
     if (await compare(password, user!.password!)) {
-      return NextResponse.json(user);
+      return NextResponse.json(exclude(user, ["password"]));
     } else {
       return NextResponse.error();
     }

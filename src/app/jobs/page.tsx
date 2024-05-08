@@ -5,6 +5,13 @@ import H1 from "@/components/ui/h1";
 import { JobFilterValues } from "@/lib/validation";
 import { Metadata } from "next";
 import Link from "next/link";
+import { options } from "@/components/auth/Options";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { getServerSession } from "next-auth";
 
 type PageProps = {
   searchParams: {
@@ -58,7 +65,7 @@ export const generateMetadata = ({
   };
 };
 
-export default function Jobs({
+export default async function Jobs({
   searchParams: { q, type, location, remote, skills, category },
 }: PageProps) {
   const filterValues: JobFilterValues = {
@@ -70,6 +77,8 @@ export default function Jobs({
     remote: remote == "true",
   };
 
+  const session = await getServerSession(options);
+
   return (
     <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
       <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
@@ -78,11 +87,22 @@ export default function Jobs({
           <p className="text-muted-foreground"> Find your dream job</p>
         </div>
         <aside className="md:absolute md:right-0">
-          <Button asChild>
-            <Link href="/jobs/new" className="w-40 md:w-fit">
-              Add new job
-            </Link>
-          </Button>
+          {session ? (
+            <Button asChild>
+              <Link href="/jobs/new" className="w-40 md:w-fit">
+                Add new job
+              </Link>
+            </Button>
+          ) : (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button>Add new job</Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-1" align="center">
+                <span> To add a new job you need to be logged in</span>
+              </PopoverContent>
+            </Popover>
+          )}
         </aside>
       </div>
       <section className="flex flex-col space-y-3 lg:flex-row-reverse gap-3">

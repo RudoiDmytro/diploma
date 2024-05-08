@@ -93,7 +93,6 @@ export default async function JobListItem({
             {skillNames?.map((skillName) => (
               <div
                 key={skillName}
-                id="badge-red"
                 className="bg-card-foreground text-background text-xs font-medium px-2.5 py-0.5 rounded border border-foreground m-1"
               >
                 {skillName}

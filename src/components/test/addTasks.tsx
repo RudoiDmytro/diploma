@@ -81,10 +81,8 @@ export default function AddTasks(props) {
     const selectedTest = newTests[testIndex];
     const selectedAnswer = selectedTest.answers[answerIndex];
 
-    // Toggle the isCorrect property of the selected answer
     selectedAnswer.isCorrect = !selectedAnswer.isCorrect;
 
-    // Update the state with the modified tests array
     setTests(newTests);
   };
 
@@ -126,7 +124,6 @@ export default function AddTasks(props) {
     formData.append("assessmentSlug", props.slug);
     formData.append("questions", JSON.stringify(tests));
 
-    const testFiles: any[] = [];
     data.tasks.forEach((task, index) => {
       if (task.taskFile) {
         formData.append("taskFile", task.taskFile);

@@ -41,7 +41,6 @@ export default function CategoryButton({
   return (
     <button
       type="button"
-      id="badge-red"
       onClick={handleCategoryClick}
       className={`inline-block text-center rounded-lg ${
         isSelected ? "gradient2 text-background hover:none" : "bg-background"

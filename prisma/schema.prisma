@@ -15,10 +15,8 @@ model User {
   password            String?       @db.VarChar(1000)
   phoneNumber         String?       @db.VarChar(50)
   profileImageUrl     String?       @db.VarChar(2000)
-  role                Role          @default(SEEKER)
+  role                Role?
   emailVerified       DateTime?
-  isAdmin             Boolean?
-  isEmployer          Boolean?
   jobs                Job[]
   assesments          Assessment[]
   seekerSkills        Skill[]
@@ -191,12 +189,12 @@ model Answer {
 model Result {
   resultId       Int        @id @default(autoincrement())
   description    String?
-  assessmentDate DateTime
+  score          Int
+  assessmentDate DateTime   @default(now())
   assessment     Assessment @relation(fields: [assessmentSlug], references: [slug])
   user           User       @relation(fields: [userId], references: [id])
   assessmentSlug String     @db.VarChar(2000)
   userId         String
-  taskToken      String     @unique @db.VarChar(2000)
 
   @@map("evaluations")
 }

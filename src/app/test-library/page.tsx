@@ -5,6 +5,13 @@ import H1 from "@/components/ui/h1";
 import { TestFilterValues } from "@/lib/validation";
 import { Metadata } from "next";
 import Link from "next/link";
+import { options } from "@/components/auth/Options";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { getServerSession } from "next-auth";
 
 type PageProps = {
   searchParams: {
@@ -44,7 +51,7 @@ export const generateMetadata = ({
   };
 };
 
-export default function TestLibrary({
+export default async function TestLibrary({
   searchParams: { q, type, category, skills },
 }: PageProps) {
   const filterValues: TestFilterValues = {
@@ -54,6 +61,8 @@ export default function TestLibrary({
     skills,
   };
 
+  const session = await getServerSession(options);
+  
   return (
     <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
       <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
@@ -62,11 +71,31 @@ export default function TestLibrary({
           <p className="text-muted-foreground"> Complete your assessment</p>
         </div>
         <aside className="md:absolute md:right-0">
-          <Button asChild>
-            <Link href="/test-library/new" className="w-40 md:w-fit">
-              Add new task
-            </Link>
-          </Button>
+          {session?.user.role === "EMPLOYER" ? (
+            <Button asChild>
+              <Link href="/test-library/new" className="w-40 md:w-fit">
+                Add new task
+              </Link>
+            </Button>
+          ) : !session ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button>Add new task</Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-1" align="center">
+                <span> To add an assesment you need to be logged in</span>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button>Add new task</Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-1" align="center">
+                <span> To add an assesment you need to be an employer</span>
+              </PopoverContent>
+            </Popover>
+          )}
         </aside>
       </div>
       <section className="flex flex-col space-y-3 lg:flex-row-reverse gap-3">
