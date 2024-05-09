@@ -31,7 +31,7 @@ export default function JobDetailsPage({
             alt="Company logo"
             width={100}
             height={100}
-            className="rounded-xl"
+            className="rounded-xl dark:bg-foreground p-1"
           />
         )}
         <div>

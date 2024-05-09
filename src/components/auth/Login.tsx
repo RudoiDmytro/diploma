@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { validateEmail } from "@/lib/utils";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/router";
 import { Button } from "../ui/button";
 import GoogleButton from "./GoogleButton";
 

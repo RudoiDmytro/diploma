@@ -52,8 +52,10 @@ export default function SkillSelector({
           key={skill}
           onClick={() => handleSkillClick(skill)}
           type="button"
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium hover:text-background hover:bg-card-foreground border ${
-            selectedSkills.includes(skill) ? "gradient2 text-background hover:none" : "bg-background"
+          className={`inline-flex items-center px-2.5 py-0.5 mt-1 rounded-lg text-xs font-medium hover:text-background hover:bg-card-foreground hover:transition-colors duration-500 ease-in-out border ${
+            selectedSkills.includes(skill)
+              ? "gradient2 text-background hover:none"
+              : "bg-background"
           }`}
         >
           {skill}

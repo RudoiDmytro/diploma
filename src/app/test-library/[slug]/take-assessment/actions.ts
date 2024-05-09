@@ -38,21 +38,32 @@ export const evaluateAnswers = (tasks, selectedAnswers) => {
       );
 
       console.log("userAnswerIds", userAnswerIds);
-      const correctAnswerIds: [] = correctAnswers.map((answer) =>
+      const correctAnswerIds: string[] = correctAnswers.map((answer) =>
         answer.answerId.toString()
       );
 
       console.log("correctAnswerIds", correctAnswerIds);
       if (JSON.stringify(userAnswerIds) === JSON.stringify(correctAnswerIds)) {
         score += task.ponderation;
+      } else if (correctAnswerIds.length < userAnswerIds.length) {
+        score +=
+          task.ponderation * (correctAnswerIds.length / userAnswerIds.length);
+      } else if (correctAnswerIds.length > userAnswerIds.length) {
+        score +=
+          task.ponderation * (userAnswerIds.length / correctAnswerIds.length);
       } else {
-        score -=
-          task.ponderation /
-          ((correctAnswerIds.length / userAnswerIds.length) * 100);
+        const correctCount = userAnswerIds.filter((id) =>
+          correctAnswerIds.includes(id)
+        ).length;
+        if (correctCount >= 1) {
+          score += task.ponderation / correctAnswers.length;
+        } else if (correctCount === 0) {
+          score += 0;
+        }
       }
     }
   });
-  console.log("score", score);
+  console.log("score", (score / totalPoints) * 100);
 
   return (score / totalPoints) * 100;
 };
@@ -80,6 +91,5 @@ export const submitAssessmentResults = async (slug, score) => {
       userId: session.user.id,
     },
   });
-
-  return result;
+  
 };

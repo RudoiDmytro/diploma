@@ -14,8 +14,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import LoadingButton from "@/components/LoadingButton";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import CountdownTimer from "@/components/test/countdown/Countdown";
+import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface PageProps {
   params: { slug: string };
@@ -35,20 +37,34 @@ export default function page({ params: { slug } }: PageProps) {
   const form = useForm();
 
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [assessment, setAssessment] = useState<Assessment>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch(`/api/assessment?slug=${slug}`, {
+        const response1 = await fetch(`/api/assessment/tasks?slug=${slug}`, {
           method: "GET",
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch skills");
+        if (!response1.ok) {
+          throw new Error("Failed to fetch tasks");
         }
-        const data = await response.json();
-        setTasks(data);
+
+        const data1 = await response1.json();
+        setTasks(data1);
+
+        const response2 = await fetch(`/api/assessment?slug=${slug}`, {
+          method: "GET",
+        });
+
+        if (!response2.ok) {
+          throw new Error("Failed to fetch assessment");
+        }
+
+        const data2 = await response2.json();
+        setAssessment(data2);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
@@ -64,12 +80,17 @@ export default function page({ params: { slug } }: PageProps) {
     try {
       console.log(data);
       const userScore = await evaluateAnswers(tasks, data);
-
-      // Example: router.push(`/assessment/${slug}/success`);
+      submitAssessmentResults(slug, userScore);
     } catch (error) {
       console.error("Error submitting assessment:", error);
-      // Show an error message to the user
+    } finally {
+      setShowModal(true);
+      localStorage.removeItem("remainingTime");
     }
+  };
+
+  const handleExpire = () => {
+    handleSubmit(handleSubmitAssessment)();
   };
 
   const {
@@ -79,101 +100,129 @@ export default function page({ params: { slug } }: PageProps) {
   } = form;
 
   return (
-    <main className="flex flex-col px-4 max-w-7xl m-auto my-10 items-center gap-5 md:items-start">
-      <Form {...form}>
-        <form onSubmit={handleSubmit(handleSubmitAssessment)}>
-          {tasks &&
-            tasks.map((taskWithAnswers, index) => (
-              <section
-                key={taskWithAnswers.taskToken}
-                className="w-full grow space-y-5 p-5 bg-card rounded-3xl mb-5"
-              >
-                <div className="flex items-center justify-between gap-4 bg-background p-5 rounded-xl text-primary">
-                  <div>
+    <main className="flex flex-col w-full">
+      {assessment && (
+        <aside className="flex flex-col gap-5 sticky top-20 left-0">
+          <CountdownTimer
+            targetDate={
+              localStorage.getItem("remainingTime")
+                ? Number(localStorage.getItem("remainingTime")) +
+                  new Date().getTime()
+                : new Date(
+                    Date.now() + Number(assessment!.duration) * 1000 * 60
+                  ).getTime()
+            }
+            onExpire={handleExpire}
+          />
+        </aside>
+      )}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Time's up!</h2>
+            <p className="mb-6">Your assessment has been submitted.</p>
+            <Button onClick={() => redirect(`/test-library/${slug}`)}>
+              Return to assessment page
+            </Button>
+          </div>
+        </div>
+      )}
+      <div className="flex flex-col px-4 max-w-7xl m-auto my-10 items-center gap-5 md:items-start">
+        <Form {...form}>
+          <form onSubmit={handleSubmit(handleSubmitAssessment)}>
+            {tasks &&
+              tasks.map((taskWithAnswers, index) => (
+                <section
+                  key={taskWithAnswers.taskToken}
+                  className="w-full grow space-y-5 p-5 bg-card rounded-3xl mb-5"
+                >
+                  <div className="flex items-center justify-between gap-4 bg-background p-5 rounded-xl text-primary">
                     <div>
-                      <p className="font-semibold">
-                        <span>
-                          {taskWithAnswers.type === "problem"
-                            ? "Problem"
-                            : "Test"}{" "}
-                          question №{index + 1}
-                        </span>
-                      </p>
+                      <div>
+                        <p className="font-semibold">
+                          <span>
+                            {taskWithAnswers.type === "problem"
+                              ? "Problem"
+                              : "Test"}{" "}
+                            question №{index + 1}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="text-muted-foreground">
+                        <p className="flex items-center gap-2">
+                          <span>
+                            Ponderation is {taskWithAnswers.ponderation}
+                          </span>
+                        </p>
+                        <p className="flex flex-col items-start gap-2 w-full">
+                          <span>
+                            The question is: <br />{" "}
+                          </span>
+                          <span className="font-semibold text-card-foreground p-2 bg-card rounded-xl ">
+                            {taskWithAnswers.question}
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-muted-foreground">
-                      <p className="flex items-center gap-2">
-                        <span>
-                          Ponderation is {taskWithAnswers.ponderation}
-                        </span>
-                      </p>
-                      <p className="flex flex-col items-start gap-2 w-full">
-                        <span>
-                          The question is: <br />{" "}
-                        </span>
-                        <span className="font-semibold text-card-foreground p-2 bg-card rounded-xl ">
-                          {taskWithAnswers.question}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>{" "}
-                {taskWithAnswers.taskFileUrl &&
-                /\.(png|jpe?g)$/i.test(taskWithAnswers.taskFileUrl) ? (
-                  <div className="relative w-[800px] h-[600px]">
-                    <Image
-                      src={taskWithAnswers.taskFileUrl}
-                      alt={`${taskWithAnswers.question} logo`}
-                      className="rounded-lg self-center bg-background p-1"
-                      fill
-                    />
-                  </div>
-                ) : (
-                  taskWithAnswers.taskFileUrl && (
-                    <div className="w-full h-full bg-background p-1">
-                      <span>There is a problem with the image</span>
-                    </div>
-                  )
-                )}
-                <div className="flex flex-col bg-background rounded-md text-primary">
-                  <div className="flex flex-row m-2 justify-between">
-                    <p className="font-semibold text-md ml-2">Answers</p>
-                  </div>
-                  {taskWithAnswers.answers.map((answer) => (
-                    <div
-                      key={answer.answerId}
-                      className="flex gap-2 m-1 bg-background justify-between p-3 rounded-md text-primary border-b-2 last:border-b-0 items-center"
-                    >
-                      <p className="max-w-2xl">{answer.description}</p>
-                      <FormField
-                        control={control}
-                        defaultValue={false}
-                        name={`task-${taskWithAnswers.taskToken}.${answer.answerId}`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="checkbox"
-                                className="h-6 w-6"
-                                checked={field.value}
-                                onChange={(checked) => {
-                                  field.onChange(checked);
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                  </div>{" "}
+                  {taskWithAnswers.taskFileUrl &&
+                  /\.(png|jpe?g)$/i.test(taskWithAnswers.taskFileUrl) ? (
+                    <div className="relative w-[800px] h-[600px]">
+                      <Image
+                        src={taskWithAnswers.taskFileUrl}
+                        alt={`${taskWithAnswers.question} logo`}
+                        className="rounded-lg self-center bg-background p-1"
+                        fill
                       />
                     </div>
-                  ))}
-                </div>
-              </section>
-            ))}
-          <LoadingButton type="submit" loading={isSubmitting}>
-            Submit
-          </LoadingButton>
-        </form>
-      </Form>
+                  ) : (
+                    taskWithAnswers.taskFileUrl && (
+                      <div className="w-full h-full bg-background p-1">
+                        <span>There is a problem with the image</span>
+                      </div>
+                    )
+                  )}
+                  <div className="flex flex-col bg-background rounded-md text-primary">
+                    <div className="flex flex-row m-2 justify-between">
+                      <p className="font-semibold text-md ml-2">Answers</p>
+                    </div>
+                    {taskWithAnswers.answers.map((answer) => (
+                      <div
+                        key={answer.answerId}
+                        className="flex gap-2 m-1 bg-background justify-between p-3 rounded-md text-primary border-b-2 last:border-b-0 items-center"
+                      >
+                        <p className="max-w-2xl">{answer.description}</p>
+                        <FormField
+                          control={control}
+                          defaultValue={false}
+                          name={`task-${taskWithAnswers.taskToken}.${answer.answerId}`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  type="checkbox"
+                                  className="h-6 w-6"
+                                  checked={field.value}
+                                  onChange={(checked) => {
+                                    field.onChange(checked);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            <LoadingButton type="submit" loading={isSubmitting}>
+              Submit
+            </LoadingButton>
+          </form>
+        </Form>
+      </div>
     </main>
   );
 }
