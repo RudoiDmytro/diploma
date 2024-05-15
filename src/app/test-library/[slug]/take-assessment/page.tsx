@@ -76,6 +76,29 @@ export default function page({ params: { slug } }: PageProps) {
     fetchTasks();
   }, []);
 
+  useEffect(() => {
+    let timeoutId;
+
+    const handleMouseMove = () => {
+      clearTimeout(timeoutId);
+    };
+
+    const handleMouseOut = () => {
+      timeoutId = setTimeout(() => {
+        setShowModal(true);
+      }, 2000);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseout", handleMouseOut);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseout", handleMouseOut);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   const handleSubmitAssessment = async (data) => {
     try {
       console.log(data);
@@ -102,7 +125,7 @@ export default function page({ params: { slug } }: PageProps) {
   return (
     <main className="flex flex-col w-full">
       {assessment && (
-        <aside className="flex flex-col gap-5 sticky top-20 left-0">
+        <aside className="flex flex-col gap-5 fixed top-20 left-0 ml-8">
           <CountdownTimer
             targetDate={
               localStorage.getItem("remainingTime")

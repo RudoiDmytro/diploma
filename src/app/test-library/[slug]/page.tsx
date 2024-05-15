@@ -52,7 +52,7 @@ export default async function page({ params: { slug } }: PageProps) {
       <main className="flex flex-col px-4 max-w-7xl m-auto my-10 md:flex-row items-center gap-5 md:items-start">
         <TestDetailsPage task={assessment} />
         <aside className="flex flex-col gap-5 sticky top-20">
-          {results.length === 0 && (
+          {!results && (
             <Button asChild>
               <button className="w-40 md:w-fit">
                 <Link href={`/test-library/${slug}/take-assessment`}>
