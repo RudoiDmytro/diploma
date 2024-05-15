@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { validateEmail } from "@/lib/utils";
 import { signIn } from "next-auth/react";
+import GoogleButton from "./GoogleButton";
 
 function SignUp() {
   const [username, setUsername] = useState<string>();
@@ -44,27 +45,27 @@ function SignUp() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (validate() &&validatePassword()) {
-        let userData = {
-          username,
-          email,
-          password,
-          role,
-        };
-        console.log(userData);
-        const res = await fetch("/api/user/register", {
-          method: "POST",
-          body: JSON.stringify(userData),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        await signIn("credentials", { email, password });
-        if (res.ok) {
-          const data = await res.json();
-        } else {
-          throw new Error();
-        }
+    if (validate() && validatePassword()) {
+      let userData = {
+        username,
+        email,
+        password,
+        role,
+      };
+      console.log(userData);
+      const res = await fetch("/api/user/register", {
+        method: "POST",
+        body: JSON.stringify(userData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      await signIn("credentials", { email, password });
+      if (res.ok) {
+        const data = await res.json();
+      } else {
+        throw new Error();
+      }
     }
   }
   return (
@@ -73,7 +74,8 @@ function SignUp() {
         onSubmit={handleSubmit}
         className="bg-muted shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
-        <label className="block text-card-foreground text-sm font-bold mb-2">
+        <GoogleButton callbackUrl="/role-selection" />
+        <label className="block text-card-foreground text-sm font-bold mt-4 mb-2">
           Choose your role
         </label>
         <div className="mb-4 flex flex-row justify-between">

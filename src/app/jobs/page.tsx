@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getServerSession } from "next-auth";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 type PageProps = {
   searchParams: {
@@ -106,7 +107,21 @@ export default async function Jobs({
         </aside>
       </div>
       <section className="flex flex-col space-y-3 lg:flex-row-reverse gap-3">
-        <JobFilterSidebar defaultValues={filterValues} />
+        <div className="lg:hidden">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button className="w-fit fixed right-5 top-20">
+                Filter
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <JobFilterSidebar defaultValues={filterValues} />
+            </DrawerContent>
+          </Drawer>
+        </div>
+        <div className="max-lg:hidden">
+          <JobFilterSidebar defaultValues={filterValues} />
+        </div>
         <JobResults filterValues={filterValues} />
       </section>
     </main>

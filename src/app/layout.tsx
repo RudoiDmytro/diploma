@@ -4,17 +4,10 @@ import "./globals.css";
 import Navbar from "@/components/nav/Navbar";
 import Footer from "@/components/footer/Footer";
 import { ThemeProvider } from "@/components/themeProvider";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 const inter = Inter({ subsets: ["latin"] });
-
-const navItems = [
-  { label: "Skills&Work", link: "/", isFocused: true },
-  { label: "Test library", link: "/test-library", isFocused: false },
-  { label: "Find Job", link: "/jobs", isFocused: false },
-  { label: "Employers", link: "/employers", isFocused: false },
-  { label: "Pricing Plans", link: "/pricing", isFocused: false },
-  { label: "Customer Supports", link: "/support", isFocused: false },
-];
 
 export const metadata: Metadata = {
   title: {
@@ -38,7 +31,7 @@ export default function RootLayout({
           sizes="32x32"
         />
       </head>
-      <body className={`${inter.className} min-w-[400px]`}>
+      <body className={`${inter.className} min-w-[300px]`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -46,7 +39,7 @@ export default function RootLayout({
         >
           <main className="flex flex-col justify-between items-center h-fit min-h-svh">
             <Navbar />
-            {children}
+            <Suspense fallback={<Loading />}>{children}</Suspense>
             <Footer />
           </main>
         </ThemeProvider>
