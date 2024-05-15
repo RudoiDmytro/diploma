@@ -9,9 +9,8 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
-import SigninButton from "./SigninButton";
-import RegisterModal from "../auth/RegisterModal";
-import Link from "next/link";
+import ProfileButton from "./ProfileButton";
+import RegisterModal from "@/components/auth/RegisterModal";
 
 type NavItem = {
   label: string;
@@ -47,37 +46,37 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
 
   return (
     <nav className="sticky top-0 z-10 bg-white backdrop-filter backdrop-blur-lg bg-opacity-10 border-b border-muted w-full">
-      <div className=" max-w-7xl mx-auto px-4">
-        <div className="flex items-center space-x-5 justify-between h-16">
-          <Image src={logo} alt="Skills&Work logo" width={40} height={40} />
-          <div className="flex space-x-4">
-            {navItems.map((item, index) => (
-              <NavButton
-                key={index}
-                href={item.link}
-                styles={`max-lg:hidden min-w-fit p-3 rounded-2xl hover:transition-colors duration-500 ease-in-out ${
-                  pathName === item.link || pathName.startsWith(`${item.link}/`)
-                    ? "gradient2 font-bold text-white hover:gradient2"
-                    : "hover:gradient1"
-                }`}
-              >
-                {item.label}
-              </NavButton>
-            ))}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center space-x-10 justify-start h-16">
+            <Image src={logo} alt="Skills&Work logo" width={40} height={40} />
+            <div className="flex space-x-4">
+              {navItems.map((item, index) => (
+                <NavButton
+                  key={index}
+                  href={item.link}
+                  styles={`max-lg:hidden min-w-fit p-3 rounded-2xl transition-all duration-150 ease-in-out ${
+                    pathName === item.link ||
+                    pathName.startsWith(`${item.link}/`)
+                      ? "gradient2 font-bold text-white hover:gradient2"
+                      : "hover:gradient1 hover:text-background"
+                  }`}
+                >
+                  {item.label}
+                </NavButton>
+              ))}
+            </div>
           </div>
           <div>
             <div className="justify-center space-x-3 flex flex-row items-center transition-all ease-in-out">
               <div className="inline-flex rounded-md shadow-sm " role="group">
-                {status === "authenticated" && (
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-2 py-1 gap-2 text-md font-medium text-foreground bg-transparent border rounded-s-lg border-foreground hover:bg-card hover:text-foreground focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white "
-                  >
-                    <Link href="/profile">Profile</Link>
-                  </button>
+                {status === "authenticated" && <ProfileButton />}
+                {status === "unauthenticated" && (
+                  <>
+                    <RegisterModal tab="register" />
+                    <RegisterModal tab="sign-in" />
+                  </>
                 )}
-                {status === "unauthenticated" && <RegisterModal />}
-                <SigninButton />
               </div>
               <div className="flex flex-row justify-between toggle">
                 <label

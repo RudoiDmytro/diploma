@@ -48,7 +48,7 @@ export default async function JobListItem({
 
   return (
     <article className="gradient1 rounded-3xl p-4 md:h-full">
-      <section className="bg-background flex md:h-full gap-3 rounded-xl p-4 hover:bg-card hover:transition-colors duration-500 ease-in-out">
+      <section className="bg-background flex md:h-full gap-3 rounded-xl p-1 hover:bg-card hover:transition-colors duration-500 ease-in-out">
         <Image
           src={companyLogoUrl || companyLogoPlaceholder}
           alt={`${companyName} logo`}
@@ -84,7 +84,7 @@ export default async function JobListItem({
             </p>
           </div>
         </div>
-        <div className="hidden md:flex flex-col text-center shrink-0 justify-between space-y-3">
+        <div className="hidden md:flex flex-col m-1 text-center shrink-0 justify-between space-y-3">
           <div className="flex flex-col space-y-2 bg-card p-1 rounded-lg">
             <Badge>{type}</Badge>
             <Badge>{categoryName}</Badge>

@@ -2,8 +2,17 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import JobDetailsPage from "@/components/job/JobDetailsPage";
 import { Button } from "@/components/ui/button";
+import dynamic from "next/dynamic";
+import Loading from "@/app/loading";
+
+const JobDetailsPage = dynamic(
+  () => import("@/components/job/JobDetailsPage"),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  }
+);
 
 interface PageProps {
   params: { slug: string };

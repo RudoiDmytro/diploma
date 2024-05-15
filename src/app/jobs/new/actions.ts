@@ -7,6 +7,8 @@ import { put } from "@vercel/blob";
 import path from "path";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { options } from "@/components/auth/Options";
 
 export async function createJobPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -26,6 +28,8 @@ export async function createJobPosting(formData: FormData) {
     newCategory,
     requiredSkills,
   } = createJobSchema.parse(values);
+
+  const session = await getServerSession(options);
 
   const slug = `${toSlug(title)}-${nanoid(10)}`;
 
@@ -85,6 +89,7 @@ export async function createJobPosting(formData: FormData) {
         description: description.trim(),
         salary: parseInt(salary),
         categoryId,
+        userId: session?.user?.id,
         requiredSkills: {
           connect: requiredSkillsConnect,
         },

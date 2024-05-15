@@ -16,8 +16,9 @@ import {
 import LoadingButton from "@/components/LoadingButton";
 import { Input } from "@/components/ui/input";
 import CountdownTimer from "@/components/test/countdown/Countdown";
-import { redirect } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface PageProps {
   params: { slug: string };
@@ -35,12 +36,81 @@ interface Task {
 
 export default function page({ params: { slug } }: PageProps) {
   const form = useForm();
+  const router = useRouter();
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!pathname.includes("/take-assessment")) {
+      localStorage.removeItem("remainingTime");
+    }
+  }, [pathname]);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assessment, setAssessment] = useState<Assessment>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const [showModal1, setShowModal1] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
+
+  const [countdownTimer, setCountdownTimer] = useState(5);
+
+  const [inactivityTimer, setInactivityTimer] = useState(30);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        setShowModal2(true);
+      }
+    };
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      setShowModal2(true);
+    };
+
+    const handleUserActivity = () => {
+      clearTimeout(inactivityTimer);
+      setInactivityTimer(
+        window.setTimeout(() => {
+          setShowModal2(true);
+        }, 30000)
+      );
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('touchstart', handleUserActivity);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('touchstart', handleUserActivity);
+      clearTimeout(inactivityTimer);
+    };
+  }, [inactivityTimer]);
+
+  useEffect(() => {
+    let timeout;
+
+    setCountdownTimer(5);
+
+    if (showModal2) {
+      timeout = setTimeout(() => {
+        localStorage.removeItem("remainingTime");
+        router.push("/test-library");
+      }, 5000);
+
+      const interval = setInterval(() => {
+        setCountdownTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+
+      return () => {
+        clearTimeout(timeout);
+        clearInterval(interval);
+      };
+    }
+  }, [showModal2, router]);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -84,7 +154,7 @@ export default function page({ params: { slug } }: PageProps) {
     } catch (error) {
       console.error("Error submitting assessment:", error);
     } finally {
-      setShowModal(true);
+      setShowModal1(true);
       localStorage.removeItem("remainingTime");
     }
   };
@@ -100,9 +170,13 @@ export default function page({ params: { slug } }: PageProps) {
   } = form;
 
   return (
-    <main className="flex flex-col w-full">
+    <main
+      className="flex flex-col max-md:w-screen md:max-w-7xl"
+      onMouseLeave={() => setShowModal2(true)}
+      onTouchCancelCapture={() => setShowModal2(true)}
+    >
       {assessment && (
-        <aside className="flex flex-col gap-5 sticky top-20 left-0">
+        <aside className="flex flex-col gap-5 fixed top-20 right-0 mr-8">
           <CountdownTimer
             targetDate={
               localStorage.getItem("remainingTime")
@@ -116,25 +190,38 @@ export default function page({ params: { slug } }: PageProps) {
           />
         </aside>
       )}
-      {showModal && (
+      {showModal1 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-4">Time's up!</h2>
             <p className="mb-6">Your assessment has been submitted.</p>
-            <Button onClick={() => redirect(`/test-library/${slug}`)}>
-              Return to assessment page
+            <Button className="w-full">
+              <Link href={`/test-library/${slug}`}>
+                Return to assessment page
+              </Link>
             </Button>
           </div>
         </div>
       )}
-      <div className="flex flex-col px-4 max-w-7xl m-auto my-10 items-center gap-5 md:items-start">
+      {showModal2 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-background p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Mouse leaved</h2>
+            <p className="mb-6">Redirecting in {countdownTimer} seconds...</p>
+            <Button className="w-full" onClick={() => setShowModal2(false)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+      <div className="flex flex-col px-4 m-auto my-10 items-center gap-5 md:items-start">
         <Form {...form}>
           <form onSubmit={handleSubmit(handleSubmitAssessment)}>
             {tasks &&
               tasks.map((taskWithAnswers, index) => (
                 <section
                   key={taskWithAnswers.taskToken}
-                  className="w-full grow space-y-5 p-5 bg-card rounded-3xl mb-5"
+                  className="grow space-y-5 p-5 bg-card rounded-3xl mb-5"
                 >
                   <div className="flex items-center justify-between gap-4 bg-background p-5 rounded-xl text-primary">
                     <div>
@@ -167,7 +254,7 @@ export default function page({ params: { slug } }: PageProps) {
                   </div>{" "}
                   {taskWithAnswers.taskFileUrl &&
                   /\.(png|jpe?g)$/i.test(taskWithAnswers.taskFileUrl) ? (
-                    <div className="relative w-[800px] h-[600px]">
+                    <div className="relative w-screen-[100px] h-[300px] lg:w-[800px] lg:h-[600px]">
                       <Image
                         src={taskWithAnswers.taskFileUrl}
                         alt={`${taskWithAnswers.question} logo`}

@@ -58,7 +58,7 @@ export default async function TestFilterSidebar({
   const uniqueSkills = [...new Set(skill.map((item) => item.skillName))];
 
   return (
-    <aside className="lg:w-[300px] mt-3 md:sticky top-20 bg-background border rounded-lg h-fit p-4">
+    <aside id="testFilterSidebar" className="lg:w-[300px] mt-3 md:sticky top-20 bg-background border rounded-lg h-fit p-4">
       <form action={filterJobs} key={JSON.stringify(defaultValues)}>
         <div className="space-y-4">
           <div className="flex flex-col gap-2">

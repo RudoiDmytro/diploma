@@ -1,5 +1,5 @@
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import NavButton from "./NavButton";
 
 type NavItem = {
   label: string;
@@ -11,21 +11,22 @@ type NavButtonGroupProps = {
   navItems: NavItem[];
 };
 
-export default function PcNav({ navItems }: NavButtonGroupProps) {
-
+export default function MobileNav({ navItems }: NavButtonGroupProps) {
   const pathName = usePathname();
   return (
-    <div className="absolute top-16 right-0 w-8/12 h-screen overflow-hidden opacity-90 gap-3 bg-gray-300 flex flex-col justify-center">
+    <div className="h-screen bg-background divide-y overflow-hidden gap-1 flex flex-col justify-center">
       {navItems.map((item, index) => (
-        <Link
+        <NavButton
           key={index}
           href={item.link}
-          className={`p-3 rounded-2xl flex h-10 font-semibold items-center justify-center shadow-inner  ${
-            pathName === item.link && "bg-red-400 font-bold text-white"
+          styles={`w-auto p-3 hover:none ${
+            pathName === item.link || pathName.startsWith(`${item.link}/`)
+              ? "gradient2 font-bold text-white focus:gradient2"
+              : "focus:gradient1 focus:text-background "
           }`}
         >
           {item.label}
-        </Link>
+        </NavButton>
       ))}
     </div>
   );

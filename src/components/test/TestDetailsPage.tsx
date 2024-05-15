@@ -40,8 +40,8 @@ export default async function TestDetailsPage({
   }));
 
   return (
-    <div className="flex flex-col items-center space-y-5">
-      <section className="w-fit grow space-y-5 p-8 gradient1 rounded-3xl">
+    <div className="flex flex-col items-center w-full space-y-5">
+      <section className="md:w-fit w-full grow space-y-5 p-8 gradient1 rounded-3xl">
         <div className="flex items-center gap-4 bg-background p-5 rounded-xl text-primary">
           {logoUrl && (
             <Image
@@ -76,12 +76,12 @@ export default async function TestDetailsPage({
         </div>
       </section>
       {session?.user.id === assessment?.userId && (
-        <div className="flex flex-col justify-start items-center gap-8 gradient1 min-w-[800px] p-8 rounded-3xl">
+        <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full md:min-w-[800px] p-8 rounded-3xl">
           {answersGroupedByTask.length > 0 ? (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger className=" text-background">
-                  <h1 className="text-5xl bg-card bg-clip-text text-transparent font-bold p-1">
+                  <h1 className="md:text-5xl text-3xl bg-card bg-clip-text text-transparent font-bold p-1">
                     Tasks
                   </h1>
                 </AccordionTrigger>
@@ -181,12 +181,12 @@ export default async function TestDetailsPage({
         </div>
       )}
       {result && (
-        <div className="flex flex-col justify-start items-center gap-8 gradient1 min-w-[800px] p-8 rounded-3xl">
+        <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full md:min-w-[800px] p-8 rounded-3xl">
           <div
             key={result.resultId}
             className="flex flex-row justify-between items-center w-full"
           >
-            <h1 className="text-5xl bg-card bg-clip-text text-transparent font-bold p-1">
+            <h1 className="md:text-5xl text-3xl bg-card bg-clip-text text-transparent font-bold p-1">
               Your result is{" "}
               {tasksArray.reduce(
                 (acc: number, task: { ponderation: number }) =>
