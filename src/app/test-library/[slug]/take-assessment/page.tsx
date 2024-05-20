@@ -146,6 +146,29 @@ export default function page({ params: { slug } }: PageProps) {
     fetchTasks();
   }, []);
 
+  useEffect(() => {
+    let timeoutId;
+
+    const handleMouseMove = () => {
+      clearTimeout(timeoutId);
+    };
+
+    const handleMouseOut = () => {
+      timeoutId = setTimeout(() => {
+        setShowModal2(true);
+      }, 2000);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseout", handleMouseOut);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseout", handleMouseOut);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   const handleSubmitAssessment = async (data) => {
     try {
       console.log(data);
