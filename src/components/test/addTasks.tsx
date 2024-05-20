@@ -35,12 +35,6 @@ type Test = {
 export default function AddTasks(props) {
   const form = useForm<addTaskValues>();
 
-  const accept = {
-    "image/png": [".png"],
-    "image/jpeg": [".jpg", ".jpeg"],
-    "application/pdf": [".pdf"],
-  };
-
   const [tests, setTests] = useState<Test[]>([]);
   const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
   const [isSecondDialogOpen, setIsSecondDialogOpen] = useState(false);

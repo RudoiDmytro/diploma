@@ -65,7 +65,7 @@ export default async function TestResults({
       ))}
       {assessment.length === 0 && (
         <p className="text-center m-auto">
-          There is no assessment found. Try adjusting your search filters.
+          There is no assessment found.
         </p>
       )}
     </div>

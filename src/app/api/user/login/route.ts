@@ -20,7 +20,6 @@ export async function POST(req: Request) {
     throw new Error(e as string);
   }
 }
-// Function to exclude user password returned from prisma
 function exclude(user, keys) {
   for (let key of keys) {
     delete user[key];

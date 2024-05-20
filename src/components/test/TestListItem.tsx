@@ -37,11 +37,11 @@ export default async function TestListItem({
 
   return (
     <article className="gradient1 rounded-3xl p-4 md:h-full">
-      <section className="bg-background flex md:h-full gap-3 rounded-xl p-1 hover:bg-card hover:transition-colors duration-500 ease-in-out">
+      <section className="bg-background flex md:h-full rounded-xl p-2 hover:bg-card hover:transition-colors duration-500 ease-in-out">
         <Image
           src={logoUrl || companyLogoPlaceholder}
           alt={`${title} logo`}
-          className="rounded-lg self-center dark:bg-foreground"
+          className="rounded-lg self-center dark:bg-foreground mr-2"
           height={50}
           width={50}
         />
