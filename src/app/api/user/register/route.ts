@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { hashSync } from "bcrypt";
 import { NextResponse } from "next/server";
+
 export async function POST(req: Request) {
   const errors: string[] = [];
   const body = await req.json();
@@ -24,3 +25,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: e });
   }
 }
+
