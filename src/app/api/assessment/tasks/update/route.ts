@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest } from "next/server";
 
-export default async function POST(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
   const tasksToUpdate = await req.json();
 
   try {

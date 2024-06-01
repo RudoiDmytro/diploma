@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { compare } from "bcrypt";
+
 export async function POST(req: Request) {
   const body = await req.json();
   const { email, password } = body;
@@ -20,6 +21,7 @@ export async function POST(req: Request) {
     throw new Error(e as string);
   }
 }
+
 function exclude(user, keys) {
   for (let key of keys) {
     delete user[key];

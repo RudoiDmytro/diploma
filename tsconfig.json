@@ -21,7 +21,6 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "react-dropzone": ["./node_modules/react-dropzone/dist/es/index.d.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
