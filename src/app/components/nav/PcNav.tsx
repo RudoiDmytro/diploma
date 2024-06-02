@@ -10,7 +10,7 @@ import Cookies from "js-cookie";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import ProfileButton from "./ProfileButton";
-import RegisterModal from "@/app//components/auth/RegisterModal";
+import RegisterModal from "@/app/components/auth/RegisterModal";
 import LocaleSwitcher from "./LocaleSwitcher";
 
 type NavItem = {
