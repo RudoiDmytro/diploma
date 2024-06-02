@@ -1,10 +1,11 @@
-import React from 'react';
+import React from "react";
+import AnalysisComponent from "./analysis/AnalysisCharts";
 
 const AnalysisTab: React.FC = () => {
   return (
     <div>
       <h2>Analysis</h2>
-      {/* Додайте ваш код для аналізу тут */}
+      <AnalysisComponent />
     </div>
   );
 };

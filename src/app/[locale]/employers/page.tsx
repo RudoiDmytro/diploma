@@ -38,7 +38,10 @@ export default async function page({ searchParams }: SearchParamProps) {
       <H1>All employers that have added jobs</H1>
       <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 text-start place-content-start col-span-2">
         {jobs.map((job: Job) => (
-          <Link key={job.slug} href={`/employers/?companyName=${job.companyName}`}>
+          <Link
+            key={job.slug}
+            href={`/employers/?companyName=${job.companyName}`}
+          >
             <EmployersListItem job={job} />
           </Link>
         ))}

@@ -10,12 +10,14 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import JobListItem from "../job/JobListItem";
+import { Job } from "@prisma/client";
 
-const getJobByCompanyName = cache(async (companyName: string) => {
-  const job = await db.job.findMany({
+const getJobsByCompanyName = cache(async (companyName: string) => {
+  const jobs = await db.job.findMany({
     where: { companyName },
   });
-  return job;
+  return jobs;
 });
 
 type EmployerModalProps = {
@@ -25,19 +27,31 @@ type EmployerModalProps = {
 export default async function EmployerModal({
   companyName,
 }: EmployerModalProps) {
-  const job = await getJobByCompanyName(companyName);
+  const jobs = await getJobsByCompanyName(companyName);
 
-  if (!job) {
+  if (!jobs) {
     return null;
   }
 
   return (
     <Dialog open={true}>
-      <DialogContent>
+      <DialogContent className="w-fit flex flex-col max-w-3xl">
         <DialogHeader>
           <DialogTitle>All jobs from this employer</DialogTitle>
         </DialogHeader>
-
+        {jobs.length > 1 ? (
+          <div className="grid grid-cols-1 xl:grid-cols-2">
+            {jobs.map((job: Job) => (
+              <JobListItem job={job} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1">
+            {jobs.map((job: Job) => (
+              <JobListItem job={job} />
+            ))}
+          </div>
+        )}
         <DialogFooter>
           <DialogClose asChild>
             <Button>
