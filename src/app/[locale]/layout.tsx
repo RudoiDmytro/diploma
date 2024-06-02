@@ -6,6 +6,8 @@ import Footer from "@/app/components/footer/Footer";
 import { ThemeProvider } from "@/app/components/themeProvider";
 import { Suspense } from "react";
 import Loading from "./loading";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,10 +23,11 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
-
-export default function RootLayout({ params, children }: LayoutProps) {
+export default async function RootLayout({ params, children }: LayoutProps) {
   const { locale } = params;
-  
+
+  const messages = await getMessages();
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
@@ -36,17 +39,19 @@ export default function RootLayout({ params, children }: LayoutProps) {
         />
       </head>
       <body className={`${inter.className} min-w-[300px]`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          disableTransitionOnChange
-        >
-          <main className="flex flex-col justify-between items-center h-fit min-h-svh">
-            <Navbar />
-            <Suspense fallback={<Loading />}>{children}</Suspense>
-            <Footer />
-          </main>
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            disableTransitionOnChange
+          >
+            <main className="flex flex-col justify-between items-center h-fit min-h-svh">
+              <Navbar locale={locale} />
+              <Suspense fallback={<Loading />}>{children}</Suspense>
+              <Footer />
+            </main>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

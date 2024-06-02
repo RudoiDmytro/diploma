@@ -148,7 +148,6 @@ export default function NewJobForm() {
       : [...selectedSkills, skill];
     if (isMounted) {
       setSelectedSkills(updatedSkills);
-      console.log(selectedSkills);
       localStorage.setItem("selectedSkills", JSON.stringify(updatedSkills));
     }
   };
@@ -202,7 +201,6 @@ export default function NewJobForm() {
 
   const onSubmit = async (values: createJobValues) => {
     const formData = new FormData();
-    console.log(values);
     const skillIds = selectedSkills.map((skill) => skill.skillId);
 
     formData.append("requiredSkills", JSON.stringify(skillIds));

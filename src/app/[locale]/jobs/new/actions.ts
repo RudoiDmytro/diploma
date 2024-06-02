@@ -12,7 +12,6 @@ import { options } from "@/app/components/auth/Options";
 
 export async function createJobPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
-  console.log(values);
   const {
     title,
     type,

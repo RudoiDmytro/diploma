@@ -23,6 +23,7 @@ type PageProps = {
     skills?: string;
     category?: string;
   };
+  params: { locale: string };
 };
 
 const getTitle = ({
@@ -68,6 +69,7 @@ export const generateMetadata = ({
 
 export default async function Jobs({
   searchParams: { q, type, location, remote, skills, category },
+  params: { locale }
 }: PageProps) {
   const filterValues: JobFilterValues = {
     q,
@@ -90,7 +92,7 @@ export default async function Jobs({
         <aside className="md:absolute md:right-0">
           {session ? (
             <Button asChild>
-              <Link href="/jobs/new" className="w-40 md:w-fit">
+              <Link href="/jobs/new" locale={locale} className="w-40 md:w-fit">
                 Add new job
               </Link>
             </Button>

@@ -1,35 +1,33 @@
 "use client";
 
 import NavButton from "@/app/components/nav/NavButton";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/portfolio.png";
 import { Moon, Sun } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition, ChangeEvent } from "react";
 import Cookies from "js-cookie";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import ProfileButton from "./ProfileButton";
 import RegisterModal from "@/app//components/auth/RegisterModal";
-import { i18n } from "../../../../i18n-config";
-import Link from "next/link";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 type NavItem = {
   label: string;
   link: string;
-  isFocused: boolean;
 };
 
 type NavButtonGroupProps = {
   navItems: NavItem[];
+  locale: string;
 };
 
-export default function PcNav({ navItems }: NavButtonGroupProps) {
+export default function PcNav({ navItems, locale }: NavButtonGroupProps) {
   const pathName = usePathname();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { theme, setTheme } = useTheme();
   const { data: session, status } = useSession();
-  const { locales, defaultLocale } = i18n;
 
   useEffect(() => {
     const theme = Cookies.get("theme");
@@ -58,9 +56,11 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
                 <NavButton
                   key={index}
                   href={item.link}
+                  locale={locale}
                   styles={`max-lg:hidden min-w-fit p-3 rounded-2xl transition-all duration-150 ease-in-out ${
-                    pathName === item.link ||
-                    pathName.startsWith(`${item.link}/`)
+                    (pathName === `/${locale}` && pathName.includes(`${item.link}`)) ||
+                    pathName.endsWith(`${item.link}`) ||
+                    pathName.includes(`${item.link}/`)
                       ? "gradient2 font-bold text-white hover:gradient2"
                       : "hover:gradient1 hover:text-background"
                   }`}
@@ -70,7 +70,7 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
               ))}
             </div>
           </div>
-          <div>
+          <div className="flex flex-row space-x-5">
             <div className="justify-center space-x-3 flex flex-row items-center transition-all ease-in-out">
               <div className="inline-flex rounded-md shadow-sm " role="group">
                 {status === "authenticated" && <ProfileButton />}
@@ -108,17 +108,8 @@ export default function PcNav({ navItems }: NavButtonGroupProps) {
                 </label>
               </div>
             </div>
+            <LocaleSwitcher />
           </div>
-        </div>
-        <div className="languages">
-          {[...locales].sort().map((locale) => (
-            <Link
-              key={locale}
-              href={locale === defaultLocale ? "/" : `/${locale}`}
-            >
-              {locale}
-            </Link>
-          ))}
         </div>
       </div>
     </nav>

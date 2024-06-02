@@ -12,7 +12,12 @@ import {
   PopoverTrigger,
 } from "@/app/components/ui/popover";
 import { getServerSession } from "next-auth";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/app/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/app/components/ui/drawer";
+import {useTranslations} from 'next-intl';
 
 type PageProps = {
   searchParams: {
@@ -21,6 +26,7 @@ type PageProps = {
     category?: string;
     skills?: string;
   };
+  params: { locale: string };
 };
 
 const getTitle = ({ q, type, category, skills }: TestFilterValues) => {
@@ -54,6 +60,7 @@ export const generateMetadata = ({
 
 export default async function TestLibrary({
   searchParams: { q, type, category, skills },
+  params: { locale },
 }: PageProps) {
   const filterValues: TestFilterValues = {
     q,
@@ -61,9 +68,9 @@ export default async function TestLibrary({
     category,
     skills,
   };
-
+  const t = useTranslations('TestLibrary');
   const session = await getServerSession(options);
-  
+
   return (
     <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
       <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
@@ -74,7 +81,11 @@ export default async function TestLibrary({
         <aside className="md:absolute md:right-0">
           {session?.user.role === "EMPLOYER" ? (
             <Button asChild>
-              <Link href="/test-library/new" className="w-40 md:w-fit">
+              <Link
+                href="/test-library/new"
+                locale={locale}
+                className="w-40 md:w-fit"
+              >
                 Add new task
               </Link>
             </Button>

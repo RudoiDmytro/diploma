@@ -9,13 +9,13 @@ import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
-  { label: "Skills&Work", link: "/", isFocused: true },
-  { label: "Test library", link: "/test-library", isFocused: false },
-  { label: "Find Job", link: "/jobs", isFocused: false },
-  { label: "Employers", link: "/employers", isFocused: false },
+  { label: "Skills&Work", link: "/" },
+  { label: "Test library", link: "/test-library" },
+  { label: "Find Job", link: "/jobs"},
+  { label: "Employers", link: "/employers" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ locale }: { locale: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function Navbar() {
   }, [pathname]);
   return (
     <SessionProvider>
-      <PcNav navItems={navItems} />
+      <PcNav navItems={navItems} locale={locale} />
       <div className="lg:hidden">
         <Drawer direction="left" open={isOpen} onOpenChange={setIsOpen}>
           <DrawerTrigger asChild>
@@ -34,7 +34,7 @@ export default function Navbar() {
             </Button>
           </DrawerTrigger>
           <DrawerContent className="w-8/12">
-            <MobileNav navItems={navItems} />
+            <MobileNav navItems={navItems} locale={locale}/>
           </DrawerContent>
         </Drawer>
       </div>

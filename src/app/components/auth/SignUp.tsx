@@ -52,7 +52,6 @@ function SignUp() {
         password,
         role,
       };
-      console.log(userData);
       const res = await fetch("/api/user/register", {
         method: "POST",
         body: JSON.stringify(userData),
