@@ -32,7 +32,6 @@ model User {
 enum Role {
   SEEKER
   EMPLOYER
-  ADMIN
 }
 
 model Account {

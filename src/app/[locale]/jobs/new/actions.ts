@@ -8,6 +8,8 @@ import path from "path";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import { writeFile, readFile } from "fs/promises";
 import { options } from "@/app/components/auth/Options";
 
 export async function createJobPosting(formData: FormData) {
@@ -32,19 +34,6 @@ export async function createJobPosting(formData: FormData) {
 
   const slug = `${toSlug(title)}-${nanoid(10)}`;
 
-  let companyLogoUrl: string | undefined = undefined;
-  if (companyLogo) {
-    const blob = await put(
-      `company_logos/${slug}${path.extname(companyLogo.name)}`,
-      companyLogo,
-      {
-        access: "public",
-        addRandomSuffix: false,
-      }
-    );
-    companyLogoUrl = blob.url;
-  }
-
   let categoryId: number;
   if (category === "new") {
     const newCategoryData = await db.category.create({
@@ -60,7 +49,9 @@ export async function createJobPosting(formData: FormData) {
   let requiredSkillsArray: number[] = [];
   if (typeof requiredSkills === "string") {
     try {
-      requiredSkillsArray = JSON.parse(requiredSkills);
+      console.log(requiredSkills);
+      requiredSkillsArray = JSON.parse(requiredSkills.toString());
+      console.log(requiredSkillsArray);
     } catch (error) {
       console.error("Failed to parse requiredSkills:", error);
     }
@@ -73,16 +64,29 @@ export async function createJobPosting(formData: FormData) {
     skillId,
   }));
 
+  const file = companyLogo;
+  if (!file) {
+    return
+  }
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const fileExtension = path.extname(file.name);
+  const filename = `${slug}${fileExtension}`;
+
   try {
+    await writeFile(
+      path.join(process.cwd(), "public/assets/" + filename),
+      buffer
+    );
     await db.job.create({
       data: {
         slug,
         title: title.trim(),
         type,
         companyName: companyName.trim(),
-        companyLogoUrl,
         locationType,
         location,
+        companyLogoUrl: process.cwd() + "public/assets/" + filename,
         applicationEmail: applicationEmail?.trim(),
         applicationUrl: applicationUrl?.trim(),
         description: description.trim(),

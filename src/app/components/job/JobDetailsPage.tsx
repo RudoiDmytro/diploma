@@ -20,6 +20,7 @@ export default function JobDetailsPage({
     applicationUrl,
     description,
     salary,
+    slug,
   },
 }: JobDetailsPageProps) {
   return (
@@ -27,10 +28,10 @@ export default function JobDetailsPage({
       <div className="flex items-center gap-4">
         {companyLogoUrl && (
           <Image
-            src={companyLogoUrl}
+            src={`/assets/${slug}.jpg`}
             alt="Company logo"
-            width={100}
-            height={100}
+            width={200}
+            height={200}
             className="rounded-xl dark:bg-foreground p-1"
           />
         )}
@@ -70,9 +71,7 @@ export default function JobDetailsPage({
           </div>
         </div>
       </div>
-      <div>
-        {description && <Markdown>{description}</Markdown>}
-      </div>
+      <div>{description && <Markdown>{description}</Markdown>}</div>
     </section>
   );
 }
