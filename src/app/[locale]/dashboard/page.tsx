@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import AnalysisTab from "@/app/components/profile/AnalysisTab";
-import AddedJobsTab from "@/app/components/profile/AddedJobsTab";
-import AddedAssessmentsTab from "@/app/components/profile/AddedAssessmentsTab";
-import AppliedJobsTab from "@/app/components/profile/AppliedJobsTab";
-import PassedAssessmentsTab from "@/app/components/profile/PassedAssessmentsTab";
+import AnalysisTab from "@/app/components/dashboard/AnalysisTab";
+import AddedJobsTab from "@/app/components/dashboard/AddedJobsTab";
+import AddedAssessmentsTab from "@/app/components/dashboard/AddedAssessmentsTab";
+import AppliedJobsTab from "@/app/components/dashboard/AppliedJobsTab";
+import PassedAssessmentsTab from "@/app/components/dashboard/PassedAssessmentsTab";
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("analysis");

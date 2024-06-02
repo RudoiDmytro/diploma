@@ -68,7 +68,6 @@ export default async function TestLibrary({
     category,
     skills,
   };
-  const t = useTranslations('TestLibrary');
   const session = await getServerSession(options);
 
   return (

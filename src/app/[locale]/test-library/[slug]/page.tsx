@@ -57,8 +57,8 @@ export default async function page({ params: { slug } }: PageProps) {
   const results = await getResults(session?.user.id as string, slug);
 
   return (
-    <div className="flex flex-col items-center max-md:w-screen max-w-7xl m-auto">
-      <main className="flex flex-col px-4 max-w-7xl my-10 w-full md:flex-row items-center gap-5 md:items-start">
+    <main className="flex flex-col items-center max-md:w-screen max-w-7xl m-auto">
+      <div className="flex flex-col px-4 max-w-7xl my-10 w-full md:flex-row items-center gap-5 md:items-start">
         <TestDetailsPage task={assessment} />
         <aside className="flex w-full flex-col gap-5 sticky top-20">
           {!results && (
@@ -72,7 +72,7 @@ export default async function page({ params: { slug } }: PageProps) {
           )}
           {session?.user.id === assessment.userId && <AddTasks slug={slug} />}
         </aside>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
