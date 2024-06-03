@@ -1,26 +1,44 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
+const plugin = require('tailwindcss/plugin');
 
 const config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
       center: true,
       padding: "2rem",
       screens: {
-        "sm":"640px",
-        "md":"768px",
-        "lg":"1024px",
-        "xl":"1280px",
-        "2xl":"1536px",
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
       },
     },
+    plugins: [
+      plugin(function ({ addVariant, e, postcss }) {
+        addVariant("firefox", ({ container, separator }) => {
+          const isFirefoxRule = postcss.atRule({
+            name: "-moz-document",
+            params: "url-prefix()",
+          });
+          isFirefoxRule.append(container.nodes);
+          container.append(isFirefoxRule);
+          isFirefoxRule.walkRules((rule) => {
+            rule.selector = `.${e(
+              `firefox${separator}${rule.selector.slice(1)}`
+            )}`;
+          });
+        });
+      }),
+    ],
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -73,12 +91,12 @@ const config = {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down 0.5s ease-out",
+        "accordion-up": "accordion-up 0.5s ease-out",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
+} satisfies Config;
 
-export default config
+export default config;

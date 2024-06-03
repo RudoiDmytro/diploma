@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gradient1: linear-gradient(to top left, #000c40, #607d8b);
+    --gradient2: linear-gradient(to top left, #231557, #44107a, #ff1361);
+
+    --background: 25 97.15% 98.16%;
+    --foreground: 212 0.4% 0.6%;
+
+    --muted: 212 0.4% 91.5%;
+    --muted-foreground: 212 0.2% 41.5%;
+
+    --popover: 212 86.8% 91.5%;
+    --popover-foreground: 212 0.4% 0.75%;
+
+    --card: 212 86.8% 91.5%;
+    --card-foreground: 212 0.4% 0.75%;
+
+    --border: 212 5.4% 89.6%;
+    --input: 212 5.4% 89.6%;
+
+    --primary: 212 4% 15%;
+    --primary-foreground: 212 0.08% 91.5%;
+
+    --secondary: 212 0.2% 95.75%;
+    --secondary-foreground: 212 1.24% 11.5%;
+
+    --accent: 212 0.2% 95.75%;
+    --accent-foreground: 212 1.24% 11.5%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --ring: 212 4% 15%;
+
+    --radius: 0.5rem;
+  }
+
+  .theme-transition {
+    transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+  }
+
+  .theme-transition.light {
+    background-color: #fff;
+    color: #000;
+  }
+
+  .theme-transition.dark {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .icon-transition {
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .icon-transition.light {
+    transform: rotate(0deg);
+  }
+
+  .icon-transition.dark {
+    transform: rotate(180deg);
+  }
+
+  .gradient1 {
+    background: var(--gradient1);
+  }
+  .gradient2 {
+    background: var(--gradient2);
+  }
+
+  .gradient3 {
+    background: var(--gradient3);
+  }
+
+  .dark {
+    --gradient1: linear-gradient(to top left,#757F9A,#D7DDE8);
+    --gradient2: linear-gradient(to top left, #ed4264, #ffedbc);
+
+    --background: 238 9.75% 4.24%;
+    --foreground: 238 1.5% 97.65%;
+
+    --muted: 238 7.5% 15.9%;
+    --muted-foreground: 238 1.5% 55.3%;
+
+    --popover: 238 70.25% 53%;
+    --popover-foreground: 238 1.5% 97.65%;
+
+    --card: 238 70.25% 53%;
+    --card-foreground: 238 1.5% 97.65%;
+
+    --border: 238 7.5% 15.9%;
+    --input: 238 7.5% 15.9%;
+
+    --primary: 238 15% 75%;
+    --primary-foreground: 238 1.5% 5.300000000000001%;
+
+    --secondary: 238 7.5% 15.9%;
+    --secondary-foreground: 238 1.5% 97.65%;
+
+    --accent: 238 7.5% 15.9%;
+    --accent-foreground: 238 1.5% 97.65%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 238 1.5% 97.65%;
+
+    --ring: 238 15% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}

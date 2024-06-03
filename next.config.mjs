@@ -1,4 +1,17 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+import createNextIntlPlugin from 'next-intl/plugin';
+ 
+const withNextIntl = createNextIntlPlugin();
 
-export default nextConfig;
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        hostname: "mdzd5plynkqfzfvi.public.blob.vercel-storage.com",
+      },
+      { hostname: "lh3.googleusercontent.com" },
+    ],
+  },
+};
+
+export default withNextIntl(nextConfig);
