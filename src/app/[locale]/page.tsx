@@ -7,6 +7,8 @@ import JobListItem from "@/app/components/job/JobListItem";
 import TestListItem from "@/app/components/test/TestListItem";
 import { CarouselItem } from "@/app/components/ui/carousel";
 import { Assessment, Job } from "@prisma/client";
+import { getJobAnalysisData } from "../components/dashboard/analysis/actions";
+import { Line } from "react-chartjs-2";
 
 const MainCarousel = dynamic(() => import("../components/MainCarousel"), {
   ssr: false,
@@ -34,6 +36,7 @@ const getRecentAssessments = cache(async () => {
 export default async function Home() {
   const recentJobs = await getRecentJobs();
   const recentAssessments = await getRecentAssessments();
+  const chartData = await getJobAnalysisData();
 
   return (
     <main className="flex flex-col items-center max-md:w-screen w-full max-w-7xl m-auto">
@@ -76,11 +79,12 @@ export default async function Home() {
                 key={test.slug}
                 className="md:basis-1/2 lg:basis-1/3"
               >
-                <TestListItem test={test}/>
+                <TestListItem test={test} />
               </CarouselItem>
             ))}
           </MainCarousel>
         </div>
+        {/* <Line data={chartData} /> */}
       </div>
     </main>
   );
