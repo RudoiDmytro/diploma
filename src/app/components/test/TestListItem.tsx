@@ -6,6 +6,7 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import companyLogoPlaceholder from "@/assets/building-2.svg";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 type TestListItemProps = {
   test: Assessment;
@@ -34,6 +35,7 @@ export default async function TestListItem({
   const categoryName = await getCategoryName(categoryId);
 
   const skillNames = skills?.map((skill) => skill.skillName);
+  const t = await getTranslations("TestLibrary");
 
   return (
     <article className="gradient1 rounded-3xl p-4 md:h-full">
@@ -58,7 +60,7 @@ export default async function TestListItem({
           <div className="text-muted-foreground">
             <p className="flex items-center gap-2">
               <Clock size={16} className="shrink-0" />
-              {duration} min
+              {duration} {t("min")}
             </p>
           </div>
         </div>

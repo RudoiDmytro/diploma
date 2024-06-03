@@ -12,7 +12,12 @@ import {
   PopoverTrigger,
 } from "@/app/components/ui/popover";
 import { getServerSession } from "next-auth";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/app/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/app/components/ui/drawer";
+import { getTranslations } from "next-intl/server";
 
 type PageProps = {
   searchParams: {
@@ -26,7 +31,7 @@ type PageProps = {
   params: { locale: string };
 };
 
-const getTitle = ({
+const getTitle = async({
   q,
   type,
   location,
@@ -34,17 +39,18 @@ const getTitle = ({
   skills,
   category,
 }: JobFilterValues) => {
+  const t = await getTranslations("JobLibrary");
   const titlePrefix = q
-    ? `${q} jobs`
+    ? `${q} ${t("title")}`
     : type
-    ? `${type} jobs`
+    ? `${type} ${t("title")}`
     : remote
-    ? `Remote jobs`
+    ? `${t("remote")}`
     : skills
-    ? `${skills} jobs`
+    ? `${skills} ${t("title")}`
     : category
-    ? `${category} jobs`
-    : "All jobs";
+    ? `${category} ${t("title")}`
+    : `${t("all")}`;
   const titelSuffix = location ? ` in ${location}` : "";
   const title =
     skills && category ? `${category}, ${titlePrefix}` : titlePrefix;
@@ -52,11 +58,11 @@ const getTitle = ({
   return `${title}${titelSuffix}`;
 };
 
-export const generateMetadata = ({
+export const generateMetadata = async({
   searchParams: { q, type, location, remote, skills, category },
-}: PageProps): Metadata => {
+}: PageProps): Promise<Metadata> => {
   return {
-    title: `${getTitle({
+    title: `${await getTitle({
       q,
       type,
       location,
@@ -69,7 +75,7 @@ export const generateMetadata = ({
 
 export default async function Jobs({
   searchParams: { q, type, location, remote, skills, category },
-  params: { locale }
+  params: { locale },
 }: PageProps) {
   const filterValues: JobFilterValues = {
     q,
@@ -81,28 +87,38 @@ export default async function Jobs({
   };
 
   const session = await getServerSession(options);
+  const t = await getTranslations("JobLibrary");
 
   return (
     <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
       <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
         <div>
-          <H1>{getTitle(filterValues)}</H1>
-          <p className="text-muted-foreground"> Find your dream job</p>
+          <H1>{await getTitle(filterValues)}</H1>
+          <p className="text-muted-foreground">{t("find")}</p>
         </div>
         <aside className="md:absolute md:right-0">
-          {session ? (
+          {session?.user.role === "EMPLOYER" ? (
             <Button asChild>
               <Link href="/jobs/new" locale={locale} className="w-40 md:w-fit">
-                Add new job
+                {t("add_new")}
               </Link>
             </Button>
+          ) : !session ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button>{t("add_new")}</Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-1" align="center">
+                <span>{t("to_add_new")}</span>
+              </PopoverContent>
+            </Popover>
           ) : (
             <Popover>
               <PopoverTrigger asChild>
-                <Button>Add new job</Button>
+                <Button>{t("add_new")}</Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-1" align="center">
-                <span> To add a new job you need to be logged in</span>
+                <span>{t("to_add_new_emp")}</span>
               </PopoverContent>
             </Popover>
           )}
@@ -112,9 +128,7 @@ export default async function Jobs({
         <div className="lg:hidden">
           <Drawer>
             <DrawerTrigger asChild>
-              <Button className="w-fit fixed right-5 top-20">
-                Filter
-              </Button>
+              <Button className="w-fit fixed right-5 top-20">{t("filter")}</Button>
             </DrawerTrigger>
             <DrawerContent>
               <JobFilterSidebar defaultValues={filterValues} />

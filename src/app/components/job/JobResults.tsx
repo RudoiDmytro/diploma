@@ -3,6 +3,7 @@ import JobListItem from "./JobListItem";
 import { JobFilterValues } from "@/lib/validation";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 type JobResultsProps = {
   filterValues: JobFilterValues;
@@ -65,6 +66,7 @@ export default async function JobResults({
     where,
     orderBy: { createdAt: "desc" },
   });
+  const t = await getTranslations("JobLibrary");
 
   return (
     <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 place-content-start col-span-2">
@@ -75,7 +77,7 @@ export default async function JobResults({
       ))}
       {jobs.length === 0 && (
         <p className="text-center m-auto">
-          There is no jobs found. Try adjusting your search filters.
+          {t("no_jobs")}
         </p>
       )}
     </div>
