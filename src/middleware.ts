@@ -5,7 +5,7 @@ import {locales, localePrefix} from './config';
 import createMiddleware from "next-intl/middleware";
 
 export async function middleware(req: NextRequest) {
-  if (req.referrer.includes("/role-selection")) {
+  if (req.referrer?.includes("/role-selection")) {
     setInterval(async () => {
       const session = await getToken({
         req,
@@ -38,7 +38,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
     "/(uk|en)/:path*",
   ],
 };
