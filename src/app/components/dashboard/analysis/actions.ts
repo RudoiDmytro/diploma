@@ -93,9 +93,9 @@ export async function getJobAnalysisData() {
       {
         label: "Jobs",
         data: salaryRanges.map((range) => range.salary),
-        borderColor: "orange",
-        borderWidth: 2,
-        pointRadius: 4,
+        borderColor: "#E01B4C",
+        backgroundColor: "#fe9043",
+        color:"white",
       },
     ],
   };

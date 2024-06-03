@@ -13,6 +13,7 @@ const navItems = [
   { label: "Test library", link: "/test-library" },
   { label: "Find Job", link: "/jobs"},
   { label: "Employers", link: "/employers" },
+  { label: "Dashboard", link: "/dashboard" },
 ];
 
 export default function Navbar({ locale }: { locale: string }) {

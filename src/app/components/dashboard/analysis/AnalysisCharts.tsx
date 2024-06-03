@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Bar, Pie, Line } from "react-chartjs-2";
+import Loading from "@/app/[locale]/loading";
 import {
   getJobsAddedData,
   getAssessmentsAddedData,
@@ -20,7 +21,9 @@ import {
   Tooltip,
   PointElement,
   LineElement,
+  Colors,
 } from "chart.js/auto";
+import { useTheme } from "next-themes";
 
 Chart.register(
   ArcElement,
@@ -31,7 +34,8 @@ Chart.register(
   LineElement,
   BarElement,
   Title,
-  Legend
+  Legend,
+  Colors
 );
 
 const AnalysisComponent = () => {
@@ -39,6 +43,8 @@ const AnalysisComponent = () => {
   const [chartData, setChartData] = useState<any>();
   const [timeFrame, setTimeFrame] = useState("day");
   const [isLoading, setIsLoading] = useState(true);
+  const { theme, setTheme } = useTheme();
+  const chartRef = useRef<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,35 +66,96 @@ const AnalysisComponent = () => {
     };
 
     fetchData();
-  }, [selectedTab, timeFrame]);
+  }, [selectedTab]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (theme === "dark") {
+      Chart.defaults.color = "white";
+    } else {
+      Chart.defaults.color = "black";
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+  }, [selectedTab]);
 
   return (
-    <div className="flex flex-col w-full max-w-7xl">
-      {/* Render the tabs */}
-      <div>
-        <button onClick={() => setSelectedTab("jobsAdded")}>Jobs Added</button>
-        <button onClick={() => setSelectedTab("assessmentsAdded")}>
+    <div className="flex flex-col items-center max-md:w-screen w-full m-auto gradient1 rounded-lg p-5">
+      <div className="w-full bg-background rounded-t-md justify-center text-foreground items-center">
+        <button
+          className={`border-r border-foreground px-2 rounded-ss-md py-1 ${
+            selectedTab === "jobsAdded" && "bg-card "
+          }`}
+          onClick={() => setSelectedTab("jobsAdded")}
+        >
+          Jobs Added
+        </button>
+        <button
+          className={`border-r border-foreground px-2 py-1 ${
+            selectedTab === "assessmentsAdded" && "bg-card"
+          }`}
+          onClick={() => setSelectedTab("assessmentsAdded")}
+        >
           Assessments Added
         </button>
-        <button onClick={() => setSelectedTab("assessmentsCompleted")}>
+        <button
+          className={`border-r border-foreground px-2 py-1 ${
+            selectedTab === "assessmentsCompleted" && "bg-card"
+          }`}
+          onClick={() => setSelectedTab("assessmentsCompleted")}
+        >
           Assessments Completed
         </button>
-        <button onClick={() => setSelectedTab("jobAnalysis")}>
+        <button
+          className={`px-2 py-1 rounded-se-md ${
+            selectedTab === "jobAnalysis" && "bg-card"
+          }`}
+          onClick={() => setSelectedTab("jobAnalysis")}
+        >
           Job Analysis
         </button>
       </div>
-
-      {/* Render the selected chart */}
-      <div className="w-full justify-center">
-        {selectedTab === "jobsAdded" && <Line data={chartData} />}
-        {selectedTab === "assessmentsAdded" && <Line data={chartData} />}
-        {selectedTab === "assessmentsCompleted" && <Line data={chartData} />}
-        {selectedTab === "jobAnalysis" && <Line data={chartData} />}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div className="w-full h-full min-w-screen justify-center bg-card rounded-b-md">
+          {selectedTab === "jobsAdded" && (
+            <Line
+              ref={chartRef}
+              width={"100%"}
+              height={"100%"}
+              data={chartData}
+            />
+          )}
+          {selectedTab === "assessmentsAdded" && (
+            <Line
+              ref={chartRef}
+              width={"100%"}
+              height={"100%"}
+              data={chartData}
+            />
+          )}
+          {selectedTab === "assessmentsCompleted" && (
+            <Line
+              ref={chartRef}
+              width={"100%"}
+              height={"100%"}
+              data={chartData}
+            />
+          )}
+          {selectedTab === "jobAnalysis" && (
+            <Bar
+              ref={chartRef}
+              width={"100%"}
+              height={"100%"}
+              data={chartData}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import FormSubmitButton from "../FormSubmitButton";
 import { db } from "@/lib/db";
 import dynamic from "next/dynamic";
 import SkillSelector from "../SkillSelector";
+import { getTranslations } from "next-intl/server";
 
 const CategoryButton = dynamic(() => import("../CategoryButton"), {
   ssr: false,
@@ -56,6 +57,7 @@ export default async function TestFilterSidebar({
     .flat();
 
   const uniqueSkills = [...new Set(skill.map((item) => item.skillName))];
+  const t = await getTranslations("FilterSidebar");
 
   return (
     <aside id="testFilterSidebar" className="lg:w-[300px] mt-3 md:sticky top-20 bg-background border rounded-lg h-fit p-4">
@@ -66,7 +68,7 @@ export default async function TestFilterSidebar({
             <Input
               id="q"
               name="q"
-              placeholder="Title, etc."
+              placeholder={`${t("title")}`}
               defaultValue={defaultValues.q}
             />
           </div>
@@ -77,7 +79,7 @@ export default async function TestFilterSidebar({
               name="type"
               defaultValue={defaultValues.type || ""}
             >
-              <option value="">All types</option>
+              <option value="">{t("all_types")}</option>
               {testTypes.map((type) => (
                 <option value={type} key={type}>
                   {type}
@@ -86,7 +88,7 @@ export default async function TestFilterSidebar({
             </Select>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{t("category")}</Label>
             <div className="grid grid-cols-2 gap-1 justify-around">
               {categories.map((category) => (
                 <CategoryButton key={category.category?.categoryId} category={category.category} redirectUrl={"/test-library"} />
@@ -94,11 +96,11 @@ export default async function TestFilterSidebar({
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="skills">Skills</Label>
+            <Label htmlFor="skills">{t("skills")}</Label>
             <SkillSelector skillNames={uniqueSkills} redirectUrl={"/test-library"} />
           </div>
           <FormSubmitButton type="submit" className="w-full">
-            Filter tests
+          {t("filter_tests")}
           </FormSubmitButton>
         </div>
       </form>

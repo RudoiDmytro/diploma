@@ -1,6 +1,38 @@
 {
   "Home": {
-    "title": "Hello world!"
+    "title": "Welcome to our Skills&Work Website!",
+    "search": "Search Job or Assessment",
+    "searching": "Search...",
+    "recent_jobs": "Recent Jobs",
+    "recent_assessments": "Recent Assessments"
   },
-  "TestLibrary": {}
+  "TestLibrary": {
+    "title": "tasks",
+    "all": "All tasks",
+    "add_new": "Add new task",
+    "complete": "Complete your assessment",
+    "to_add_new": "To add an assesment you need to be logged in",
+    "to_add_new_emp": "To add an assesment you need to be an employer",
+    "filter": "Filter",
+    "no_assessment": "There is no assessments found.",
+    "min": "min"
+  },
+  "JobLibrary": {
+    "title": "jobs",
+    "all": "All jobs",
+    "add_new": "Add new job",
+    "find": "Find your dream job",
+    "to_add_new": "To add a job you need to be logged in",
+    "to_add_new_emp": "To add a job you need to be an employer",
+    "filter": "Filter",
+    "no_jobs": "There is no jobs found.",
+    "remote": "Remote jobs"
+  },
+  "FilterSidebar": {
+    "title": "Title, etc.",
+    "all_types": "All types",
+    "category": "Category",
+    "skills": "Skills",
+    "filter_tests": "Filter tests"
+  }
 }

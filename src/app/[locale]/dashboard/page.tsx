@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
           </ul>
         </nav>
       </aside>
-      <div className="flex flex-col ml-[25%]">{renderTab()}</div>
+      <div className="flex flex-col w-full max-w-7xl">{renderTab()}</div>
     </main>
   );
 };
