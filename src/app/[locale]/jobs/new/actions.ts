@@ -64,20 +64,30 @@ export async function createJobPosting(formData: FormData) {
     skillId,
   }));
 
-  const file = companyLogo;
-  if (!file) {
-    return
-  }
-  const buffer = Buffer.from(await file.arrayBuffer());
+  let companyLogoUrl: string | undefined = undefined;
 
-  const fileExtension = path.extname(file.name);
-  const filename = `${slug}${fileExtension}`;
+  if (companyLogo) {
+    const blob = await put(
+      `logos/${slug}${path.extname(companyLogo.name)}`,
+      companyLogo,
+      {
+        access: "public",
+        addRandomSuffix: false,
+      }
+    );
+    companyLogoUrl = blob.url;
+  }
+  // const buffer = Buffer.from(await file.arrayBuffer());
+
+  // const fileExtension = path.extname(file.name);
+  // const filename = `${slug}${fileExtension}`;
 
   try {
-    await writeFile(
-      path.join(process.cwd(), "public/assets/" + filename),
-      buffer
-    );
+    // await writeFile(
+    //   path.join(process.cwd(), "public/assets/" + filename),
+    //   buffer
+    // );
+
     await db.job.create({
       data: {
         slug,
@@ -86,7 +96,7 @@ export async function createJobPosting(formData: FormData) {
         companyName: companyName.trim(),
         locationType,
         location,
-        companyLogoUrl: process.cwd() + "public/assets/" + filename,
+        companyLogoUrl,
         applicationEmail: applicationEmail?.trim(),
         applicationUrl: applicationUrl?.trim(),
         description: description.trim(),
