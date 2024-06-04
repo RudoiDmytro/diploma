@@ -10,6 +10,9 @@ export const locales = ['en', 'uk'] as const;
 
 export const pathnames = {
   '/': '/',
+  '/test-library/[slug]': '/test-library/[slug]',
+  '/test-library/[slug]/take-assessment': '/test-library/[slug]/take-assessment',
+  '/jobs/[slug]':'/jobs/[slug]',
 } satisfies Pathnames<typeof locales>;
 
 export const localePrefix = "always";
