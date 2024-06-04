@@ -4,12 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import Loading from "@/app/[locale]/loading";
 import {
-  getJobsAddedData,
-  getAssessmentsAddedData,
-  getAssessmentsCompletedData,
-  getJobAnalysisData,
-  getJobTypesAnalysisData,
-  getJobLocationAnalysisData,
+  getUserJobsAddedData,
+  getUserAssessmentsAddedData,
+  getUserAssessmentsCompletedData,
+  getUserJobAnalysisData,
 } from "./actions";
 
 import {
@@ -26,6 +24,7 @@ import {
   Colors,
 } from "chart.js/auto";
 import { useTheme } from "next-themes";
+import { useSession } from "next-auth/react";
 
 Chart.register(
   ArcElement,
@@ -47,30 +46,22 @@ const AnalysisComponent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { theme, setTheme } = useTheme();
   const chartRef = useRef<any>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (chartRef.current) {
-        chartRef.current.destroy();
-      }
       setIsLoading(true);
       if (selectedTab === "jobsAdded") {
-        const data = await getJobsAddedData(timeFrame);
+        const data = await getUserJobsAddedData(session!.user.id);
         setChartData(data);
       } else if (selectedTab === "assessmentsAdded") {
-        const data = await getAssessmentsAddedData(timeFrame);
+        const data = await getUserAssessmentsAddedData(session!.user.id);
         setChartData(data);
       } else if (selectedTab === "assessmentsCompleted") {
-        const data = await getAssessmentsCompletedData(timeFrame);
+        const data = await getUserAssessmentsCompletedData(session!.user.id);
         setChartData(data);
       } else if (selectedTab === "jobAnalysis") {
-        const data = await getJobAnalysisData();
-        setChartData(data);
-      } else if (selectedTab === "jobTypesAnalysis") {
-        const data = await getJobTypesAnalysisData();
-        setChartData(data);
-      } else if (selectedTab === "jobLocationsAnalysis") {
-        const data = await getJobLocationAnalysisData();
+        const data = await getUserJobAnalysisData(session!.user.id);
         setChartData(data);
       }
       setIsLoading(false);
@@ -86,6 +77,12 @@ const AnalysisComponent = () => {
       Chart.defaults.color = "black";
     }
   }, [theme]);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+  }, [selectedTab]);
 
   return (
     <div className="flex flex-col items-center max-md:w-screen w-full m-auto gradient1 rounded-lg p-5">
@@ -115,28 +112,12 @@ const AnalysisComponent = () => {
           Assessments Completed
         </button>
         <button
-          className={`border-r border-foreground px-2 py-1 ${
+          className={`px-2 py-1 rounded-se-md ${
             selectedTab === "jobAnalysis" && "bg-card"
           }`}
           onClick={() => setSelectedTab("jobAnalysis")}
         >
           Job Analysis
-        </button>
-        <button
-          className={`border-r border-foreground px-2 py-1 ${
-            selectedTab === "jobTypesAnalysis" && "bg-card"
-          }`}
-          onClick={() => setSelectedTab("jobTypesAnalysis")}
-        >
-          Job types
-        </button>
-        <button
-          className={`border-foreground px-2 py-1 rounded-se-md ${
-            selectedTab === "jobLocationsAnalysis" && "bg-card"
-          }`}
-          onClick={() => setSelectedTab("jobLocationsAnalysis")}
-        >
-          Job locations
         </button>
       </div>
       {isLoading ? (
@@ -152,7 +133,7 @@ const AnalysisComponent = () => {
             />
           )}
           {selectedTab === "assessmentsAdded" && (
-            <Bar
+            <Line
               ref={chartRef}
               width={"100%"}
               height={"100%"}
@@ -169,22 +150,6 @@ const AnalysisComponent = () => {
           )}
           {selectedTab === "jobAnalysis" && (
             <Bar
-              ref={chartRef}
-              width={"100%"}
-              height={"100%"}
-              data={chartData}
-            />
-          )}
-          {selectedTab === "jobTypesAnalysis" && (
-            <Pie
-              ref={chartRef}
-              width={"100%"}
-              height={"100%"}
-              data={chartData}
-            />
-          )}
-          {selectedTab === "jobLocationsAnalysis" && (
-            <Pie
               ref={chartRef}
               width={"100%"}
               height={"100%"}
