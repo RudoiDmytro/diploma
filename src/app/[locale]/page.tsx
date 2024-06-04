@@ -64,7 +64,7 @@ export default async function Home() {
             {recentJobs.map((job: Job) => (
               <CarouselItem
                 key={job.slug}
-                className="md:basis-1/2 lg:basis-1/3"
+                className="md:basis-1/2"
               >
                 <JobListItem job={job} />
               </CarouselItem>
