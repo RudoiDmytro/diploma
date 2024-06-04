@@ -50,7 +50,7 @@ export default async function JobListItem({
     <article className="gradient1 rounded-3xl p-4 md:h-full">
       <section className="bg-background flex md:h-full rounded-xl p-2 hover:bg-card hover:transition-colors duration-500 ease-in-out">
         <Image
-          src={(`/assets/${slug}.jpg` || companyLogoPlaceholder) ? `/assets/${slug}.jpg` : companyLogoPlaceholder}
+          src={companyLogoUrl || companyLogoPlaceholder}
           alt={`${companyName} logo`}
           className="rounded-lg self-center dark:bg-foreground mr-2"
           height={50}
