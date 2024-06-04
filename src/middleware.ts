@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import {locales, localePrefix} from './config';
+import { locales, localePrefix, pathnames } from "./config";
 
 import createMiddleware from "next-intl/middleware";
 
@@ -30,7 +30,8 @@ export async function middleware(req: NextRequest) {
   const intlMiddleware = createMiddleware({
     defaultLocale: "uk",
     localePrefix,
-    locales
+    locales,
+    pathnames,
   });
 
   return intlMiddleware(req);
