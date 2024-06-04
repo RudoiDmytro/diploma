@@ -11,6 +11,8 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { writeFile, readFile } from "fs/promises";
 import { options } from "@/app/components/auth/Options";
+import * as Bytescale from "@bytescale/sdk";
+
 
 export async function createJobPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -64,20 +66,30 @@ export async function createJobPosting(formData: FormData) {
     skillId,
   }));
 
-  const file = companyLogo;
-  if (!file) {
-    return
-  }
-  const buffer = Buffer.from(await file.arrayBuffer());
+  // const file = companyLogo;
+  // if (!file) {
+  //   return
+  // }
+  // const buffer = Buffer.from(await file.arrayBuffer());
 
-  const fileExtension = path.extname(file.name);
-  const filename = `${slug}${fileExtension}`;
+  // const fileExtension = path.extname(file.name);
+  // const filename = `${slug}${fileExtension}`;
+
+  const uploadManager = new Bytescale.UploadManager({
+    apiKey: "public_W142idv6LAssEmRwGsWFEQ4WR6Jr" // This is your API key.
+  });
+
+    const file = companyLogo;
+    if (!file) {
+        return
+      }
 
   try {
-    await writeFile(
-      path.join(process.cwd(), "public/assets/" + filename),
-      buffer
-    );
+    // await writeFile(
+    //   path.join(process.cwd(), "public/assets/" + filename),
+    //   buffer
+    // );
+    const { fileUrl, filePath } = await uploadManager.upload({ data: file });
     await db.job.create({
       data: {
         slug,
@@ -86,7 +98,7 @@ export async function createJobPosting(formData: FormData) {
         companyName: companyName.trim(),
         locationType,
         location,
-        companyLogoUrl: process.cwd() + "public/assets/" + filename,
+        companyLogoUrl: fileUrl,
         applicationEmail: applicationEmail?.trim(),
         applicationUrl: applicationUrl?.trim(),
         description: description.trim(),

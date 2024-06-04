@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "-": "^0.0.1",
+    "@bytescale/sdk": "^3.39.0",
     "@formatjs/intl": "^2.10.4",
     "@headlessui/react": "^1.7.19",
     "@hookform/resolvers": "^3.3.4",

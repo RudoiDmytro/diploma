@@ -213,7 +213,6 @@ export default function NewJobForm() {
 
     try {
       await createJobPosting(formData);
-
       localStorage.removeItem("selectedSkills");
     } catch (error) {
       alert(error);
