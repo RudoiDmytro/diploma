@@ -43,7 +43,11 @@ export default async function JobListItem({
 }: JobListItemProps) {
   const skills = await getSkills(slug);
   const categoryName = await getCategoryName(categoryId);
-
+  const image = { accountId: "W142idv", companyLogoUrl };
+  const logo = await fetch(`/api/file`, {
+    method: "GET",
+    body: JSON.stringify(image),
+  });
   const skillNames = skills?.map((skill) => skill.skillName);
 
   return (

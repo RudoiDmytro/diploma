@@ -11,6 +11,8 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { writeFile, readFile } from "fs/promises";
 import { options } from "@/app/components/auth/Options";
+import * as Bytescale from "@bytescale/sdk";
+
 
 export async function createJobPosting(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -87,7 +89,6 @@ export async function createJobPosting(formData: FormData) {
     //   path.join(process.cwd(), "public/assets/" + filename),
     //   buffer
     // );
-
     await db.job.create({
       data: {
         slug,
