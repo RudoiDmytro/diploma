@@ -3,17 +3,7 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { Button } from "@/app/components/ui/button";
-import dynamic from "next/dynamic";
-import Loading from "@/app/[locale]/loading";
-
-const JobDetailsPage = dynamic(
-  () => import("@/app/components/job/JobDetailsPage"),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
-
+import JobDetailsPage from "@/app/components/job/JobDetailsPage";
 interface PageProps {
   params: { slug: string };
 }

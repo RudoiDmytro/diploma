@@ -28,7 +28,7 @@ export async function middleware(req: NextRequest) {
   }
 
   const intlMiddleware = createMiddleware({
-    defaultLocale: "uk",
+    defaultLocale: "en",
     localePrefix,
     locales,
     pathnames,
