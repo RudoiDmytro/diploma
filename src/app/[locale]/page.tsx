@@ -8,7 +8,7 @@ import TestListItem from "@/app/components/test/TestListItem";
 import { CarouselItem } from "@/app/components/ui/carousel";
 import { Assessment, Job } from "@prisma/client";
 import { getJobAnalysisData } from "../components/dashboard/analysis/actions";
-import { Line } from "react-chartjs-2";
+import { getTranslations } from "next-intl/server";
 
 const MainCarousel = dynamic(() => import("../components/MainCarousel"), {
   ssr: false,
@@ -36,35 +36,35 @@ const getRecentAssessments = cache(async () => {
 export default async function Home() {
   const recentJobs = await getRecentJobs();
   const recentAssessments = await getRecentAssessments();
-  const chartData = await getJobAnalysisData();
+  const t = await getTranslations("Home");
 
   return (
     <main className="flex flex-col items-center max-md:w-screen w-full max-w-7xl m-auto">
       <div className="flex flex-col px-5 max-w-7xl my-10 w-full items-center gap-5">
-        <h1 className="text-4xl font-bold mb-8">Welcome to Our Website</h1>
+        <h1 className="text-4xl font-bold mb-8">{t("title")}</h1>
         <div className="mb-8 w-full">
           <h2 className="text-2xl font-semibold mb-4 max-2xl:px-10">
-            Search Job or Assessment
+            {t("search")}
           </h2>
           <div className="flex max-2xl:px-10">
             <input
               type="text"
-              placeholder="Search..."
-              className="w-full px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={`${t("searching")}`}
+              className="w-full px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2"
             />
             <button className="px-2 py-2 justify-evenly flex flex-row gradient1 text-background rounded-r-lg hover:gradient2 focus:outline-none">
               <Search />
-              Search
+              {t("searching")}
             </button>
           </div>
         </div>
         <div className="mb-8 justify-between w-full m-auto max-2xl:px-10">
-          <h2 className="text-2xl font-semibold mb-4">Recent Jobs</h2>
+          <h2 className="text-2xl font-semibold mb-4">{t("recent_jobs")}</h2>
           <MainCarousel>
             {recentJobs.map((job: Job) => (
               <CarouselItem
                 key={job.slug}
-                className="md:basis-1/2 lg:basis-1/3"
+                className="md:basis-1/2"
               >
                 <JobListItem job={job} />
               </CarouselItem>
@@ -72,7 +72,9 @@ export default async function Home() {
           </MainCarousel>
         </div>
         <div className="mb-8 justify-between w-full m-auto max-2xl:px-10">
-          <h2 className="text-2xl font-semibold mb-4">Recent Assessments</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            {t("recent_assessments")}
+          </h2>
           <MainCarousel>
             {recentAssessments.map((test: Assessment) => (
               <CarouselItem
@@ -84,7 +86,6 @@ export default async function Home() {
             ))}
           </MainCarousel>
         </div>
-        {/* <Line data={chartData} /> */}
       </div>
     </main>
   );

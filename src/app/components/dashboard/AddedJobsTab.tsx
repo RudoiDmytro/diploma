@@ -7,8 +7,9 @@ interface AddedJobsTabProps {
 
 const AddedJobsTab: React.FC<AddedJobsTabProps> = ({ jobs }) => {
   return (
-    <div>
-      <h2>Added Jobs</h2>
+    <div className='flex flex-col gap-4'>
+      <h1>Added Jobs</h1>
+      <div className='flex flex-col gap-4 border p-2'></div>
       {jobs.map((job) => (
         <div key={job.slug}>
           <h3>{job.title}</h3>

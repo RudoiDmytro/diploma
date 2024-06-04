@@ -3,6 +3,7 @@ import TestListItem from "./TestListItem";
 import { TestFilterValues } from "@/lib/validation";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 type TestResultsProps = {
   filterValues: TestFilterValues;
@@ -51,6 +52,8 @@ export default async function TestResults({
     where,
     orderBy: { createdAt: "desc" },
   });
+  
+  const t = await getTranslations("TestLibrary");
 
   return (
     <div className="grid grid-cols-2 auto-cols-auto h-fit gap-2 max-md:grid-cols-1 col-span-2">
@@ -65,7 +68,7 @@ export default async function TestResults({
       ))}
       {assessment.length === 0 && (
         <p className="text-center m-auto">
-          There is no assessment found.
+          {t("no_assessment")}
         </p>
       )}
     </div>

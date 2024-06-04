@@ -30,6 +30,14 @@ export default async function RootLayout({ params, children }: LayoutProps) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <link
+          rel="icon"
+          href="https://img.icons8.com/doodle/48/office.png"
+          type="image/svg"
+          sizes="48x48"
+        />
+      </head>
       <body className={`${inter.className} min-w-[300px]`}>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider

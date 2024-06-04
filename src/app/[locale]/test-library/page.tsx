@@ -17,7 +17,7 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "@/app/components/ui/drawer";
-import {useTranslations} from 'next-intl';
+import { getTranslations } from "next-intl/server";
 
 type PageProps = {
   searchParams: {
@@ -29,27 +29,29 @@ type PageProps = {
   params: { locale: string };
 };
 
-const getTitle = ({ q, type, category, skills }: TestFilterValues) => {
+const getTitle = async ({ q, type, category, skills }: TestFilterValues) => {
+  const t = await getTranslations("TestLibrary");
+
   const titlePrefix = q
-    ? `${q} tasks`
+    ? `${q} ${t("title")}`
     : type
-    ? `${type} tasks`
+    ? `${type}  ${t("title")}`
     : skills
-    ? `${skills} tasks`
+    ? `${skills}  ${t("title")}`
     : category
-    ? `${category} tasks`
-    : "All tasks";
+    ? `${category}  ${t("title")}`
+    : ` ${t("all")}`;
   const title =
     skills && category ? `${category}, ${titlePrefix}` : titlePrefix;
 
   return `${title}`;
 };
 
-export const generateMetadata = ({
+export const generateMetadata = async({
   searchParams: { q, type, category, skills },
-}: PageProps): Metadata => {
+}: PageProps): Promise<Metadata> => {
   return {
-    title: `${getTitle({
+    title: `${await getTitle({
       q,
       type,
       skills,
@@ -69,13 +71,14 @@ export default async function TestLibrary({
     skills,
   };
   const session = await getServerSession(options);
+  const t = await getTranslations("TestLibrary");
 
   return (
     <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
       <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
         <div>
-          <H1>{getTitle(filterValues)}</H1>
-          <p className="text-muted-foreground"> Complete your assessment</p>
+          <H1>{await getTitle(filterValues)}</H1>
+          <p className="text-muted-foreground">{t("complete")}</p>
         </div>
         <aside className="md:absolute md:right-0">
           {session?.user.role === "EMPLOYER" ? (
@@ -85,25 +88,25 @@ export default async function TestLibrary({
                 locale={locale}
                 className="w-40 md:w-fit"
               >
-                Add new task
+                {t("add_new")}
               </Link>
             </Button>
           ) : !session ? (
             <Popover>
               <PopoverTrigger asChild>
-                <Button>Add new task</Button>
+                <Button>{t("add_new")}</Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-1" align="center">
-                <span> To add an assesment you need to be logged in</span>
+                <span>{t("to_add_new")}</span>
               </PopoverContent>
             </Popover>
           ) : (
             <Popover>
               <PopoverTrigger asChild>
-                <Button>Add new task</Button>
+                <Button>{t("add_new")}</Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-1" align="center">
-                <span> To add an assesment you need to be an employer</span>
+                <span>{t("to_add_new_emp")}</span>
               </PopoverContent>
             </Popover>
           )}
@@ -113,9 +116,9 @@ export default async function TestLibrary({
         <div className="lg:hidden">
           <Drawer>
             <DrawerTrigger asChild>
-              <Button className="w-fit fixed right-5 top-20">Filter</Button>
+              <Button className="w-fit fixed right-5 top-20">{t("filter")}</Button>
             </DrawerTrigger>
-            <DrawerContent className="">
+            <DrawerContent>
               <TestFilterSidebar defaultValues={filterValues} />
             </DrawerContent>
           </Drawer>
