@@ -32,15 +32,6 @@ const getAssessment = cache(async (slug: string) => {
   return assessment;
 });
 
-export async function generateStaticParams() {
-  const assessments = await db.assessment.findMany({
-    where: { approved: true },
-    select: { slug: true },
-  });
-
-  return assessments.map(({ slug }) => slug);
-}
-
 export async function generateMetadata({
   params: { slug },
 }: PageProps): Promise<Metadata> {
