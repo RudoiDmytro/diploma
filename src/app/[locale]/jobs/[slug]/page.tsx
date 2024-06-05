@@ -3,17 +3,7 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { Button } from "@/app/components/ui/button";
-import dynamic from "next/dynamic";
-import Loading from "@/app/[locale]/loading";
-
-const JobDetailsPage = dynamic(
-  () => import("@/app/components/job/JobDetailsPage"),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
-
+import JobDetailsPage from "@/app/components/job/JobDetailsPage";
 interface PageProps {
   params: { slug: string };
 }
@@ -26,15 +16,6 @@ const getJob = cache(async (slug: string) => {
   if (!job) notFound();
   return job;
 });
-
-export async function generateStaticParams() {
-  const jobs = await db.job.findMany({
-    where: { approved: true },
-    select: { slug: true },
-  });
-
-  return jobs.map(({ slug }) => slug);
-}
 
 export async function generateMetadata({
   params: { slug },

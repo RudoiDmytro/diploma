@@ -79,13 +79,7 @@ export default async function TestDetailsPage({
             className="flex flex-row justify-between items-center w-full"
           >
             <h1 className="md:text-5xl text-3xl bg-card bg-clip-text text-transparent font-bold p-1">
-              Your result is{" "}
-              {tasksArray.reduce(
-                (acc: number, task: { ponderation: number }) =>
-                  acc + task.ponderation,
-                0
-              )}{" "}
-              points or {result.score} %
+              Your result is {result.score} %
             </h1>
           </div>
         </div>
