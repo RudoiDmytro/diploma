@@ -5,18 +5,30 @@ import { db } from "@/lib/db";
 export async function getJobsAddedData(timeFrame: string) {
   const jobsAdded = await db.job.groupBy({
     by: ["createdAt"],
-    _count: true,
+    _count: {
+      _all: true,
+    },
     orderBy: {
       createdAt: "asc",
     },
   });
 
+  const groupedByDate = jobsAdded.reduce((acc, curr) => {
+    const date = curr.createdAt.toLocaleDateString();
+    if (acc[date]) {
+      acc[date] += curr._count._all;
+    } else {
+      acc[date] = curr._count._all;
+    }
+    return acc;
+  }, {} as { [key: string]: number });
+
   const data = {
-    labels: jobsAdded.map((job) => job.createdAt.toLocaleDateString()),
+    labels: Object.keys(groupedByDate),
     datasets: [
       {
         label: "Jobs Added",
-        data: jobsAdded.map((job) => job._count),
+        data: Object.values(groupedByDate),
         fill: false,
         borderColor: "#E01B4C",
         backgroundColor: "#fe9043",
@@ -60,14 +72,22 @@ export async function getAssessmentsAddedData(timeFrame: string) {
     },
   });
 
+  const groupedByDate = assessmentsAdded.reduce((acc, curr) => {
+    const date = curr.createdAt.toLocaleDateString();
+    if (acc[date]) {
+      acc[date] += curr._count;
+    } else {
+      acc[date] = curr._count;
+    }
+    return acc;
+  }, {} as { [key: string]: number });
+
   const data = {
-    labels: assessmentsAdded.map((assessment) =>
-      assessment.createdAt.toLocaleDateString()
-    ),
+    labels: Object.keys(groupedByDate),
     datasets: [
       {
         label: "Assessments Added",
-        data: assessmentsAdded.map((assessment) => assessment._count),
+        data: Object.values(groupedByDate),
         fill: false,
         borderColor: "#E01B4C",
         backgroundColor: "#fe9043",
@@ -138,14 +158,22 @@ export async function getUserAssessmentsCompletedData(userId: string) {
     },
   });
 
+  const groupedByDate = assessmentsCompleted.reduce((acc, curr) => {
+    const date = curr.assessmentDate.toLocaleDateString();
+    if (acc[date]) {
+      acc[date] += curr._count;
+    } else {
+      acc[date] = curr._count;
+    }
+    return acc;
+  }, {} as { [key: string]: number });
+
   const data = {
-    labels: assessmentsCompleted.map((result) =>
-      result.assessmentDate.toLocaleDateString()
-    ),
+    labels: Object.keys(groupedByDate),
     datasets: [
       {
         label: "Assessments Completed",
-        data: assessmentsCompleted.map((result) => result._count),
+        data: Object.values(groupedByDate),
         fill: false,
         borderColor: "#E01B4C",
         backgroundColor: "#fe9043",
@@ -156,69 +184,43 @@ export async function getUserAssessmentsCompletedData(userId: string) {
 }
 
 export async function getJobAnalysisData() {
-  const salaryRanges = await db.job.groupBy({
-    by: ["salary", "createdAt"],
-    _count: true,
+  const jobsWithSalaries = await db.job.findMany({
+    select: {
+      salary: true,
+      createdAt: true,
+    },
     orderBy: {
       createdAt: "asc",
     },
   });
 
-  const jobTypes = await db.job.groupBy({
-    by: ["type"],
-    _count: true,
-  });
+  const groupedByDate = jobsWithSalaries.reduce((acc, curr) => {
+    const date = curr.createdAt.toLocaleDateString();
+    if (acc[date]) {
+      acc[date].push(curr.salary);
+    } else {
+      acc[date] = [curr.salary];
+    }
+    return acc;
+  }, {} as { [key: string]: number[] });
 
-  const locationTypes = await db.job.groupBy({
-    by: ["locationType"],
-    _count: true,
-  });
-
-  const jobTypeData = {
-    labels: jobTypes.map((type) => type.type),
+  const data = {
+    labels: Object.keys(groupedByDate),
     datasets: [
       {
-        data: jobTypes.map((type) => type._count),
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-        ],
-      },
-    ],
-  };
-
-  const locationTypeData = {
-    labels: locationTypes.map((type) => type.locationType),
-    datasets: [
-      {
-        data: locationTypes.map((type) => type._count),
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-        ],
-      },
-    ],
-  };
-
-  const salaryData = {
-    labels: salaryRanges.map((range) => range.createdAt.toLocaleDateString()),
-    datasets: [
-      {
-        label: "Jobs",
-        data: salaryRanges.map((range) => range.salary),
+        label: "Average Salary",
+        data: Object.values(groupedByDate).map((salaries) =>
+          Math.round(
+            salaries.reduce((sum, salary) => sum + salary, 0) / salaries.length
+          )
+        ),
         borderColor: "#E01B4C",
         backgroundColor: "#fe9043",
       },
     ],
   };
 
-  return salaryData;
+  return data;
 }
 
 export async function getJobLocationAnalysisData() {

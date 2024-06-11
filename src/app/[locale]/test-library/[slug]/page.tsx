@@ -8,16 +8,8 @@ import { options } from "@/app/components/auth/Options";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { getResults } from "@/lib/serverUtils";
-import dynamic from "next/dynamic";
-import Loading from "@/app/[locale]/loading";
+import TestDetailsPage from "@/app/components/test/TestDetailsPage"
 
-const TestDetailsPage = dynamic(
-  () => import("@/app/components/test/TestDetailsPage"),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
 
 interface PageProps {
   params: { slug: string };
@@ -48,10 +40,10 @@ export default async function page({ params: { slug } }: PageProps) {
   const results = await getResults(session?.user.id as string, slug);
 
   return (
-    <main className="flex flex-col items-center max-md:w-screen max-w-7xl m-auto">
+    <main className="flex flex-col items-center max-md:w-screen max-w-7xl">
       <div className="flex flex-col px-4 max-w-7xl my-10 w-full md:flex-row items-center gap-5 md:items-start">
         <TestDetailsPage task={assessment} />
-        <aside className="flex w-full flex-col gap-5 sticky top-20">
+        <aside className="flex w-fit flex-col gap-5 sticky top-20">
           {!results && (
             <Button asChild>
               <button className="w-full md:w-fit">

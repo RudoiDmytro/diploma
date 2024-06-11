@@ -43,6 +43,7 @@ Chart.register(
 const AnalysisComponent = () => {
   const [selectedTab, setSelectedTab] = useState("jobsAdded");
   const [chartData, setChartData] = useState<any>();
+  console.log(chartData);
   const [timeFrame, setTimeFrame] = useState("day");
   const [isLoading, setIsLoading] = useState(true);
   const { theme, setTheme } = useTheme();
@@ -149,24 +150,90 @@ const AnalysisComponent = () => {
               width={"100%"}
               height={"100%"}
               data={chartData}
+              options={{
+                scales: {
+                  y: {
+                    ticks: {
+                      stepSize: 1,
+                    },
+                    beginAtZero: true,
+                  },
+                },
+              }}
             />
           )}
-          {selectedTab === "assessmentsAdded" && (
-            <Bar
-              ref={chartRef}
-              width={"100%"}
-              height={"100%"}
-              data={chartData}
-            />
-          )}
-          {selectedTab === "assessmentsCompleted" && (
-            <Line
-              ref={chartRef}
-              width={"100%"}
-              height={"100%"}
-              data={chartData}
-            />
-          )}
+          {selectedTab === "assessmentsAdded" &&
+            (chartData.labels.length > 1 && chartData.datasets[0].data.every( (val, i, arr) => val === arr[0] ) === false ? (
+              <Line
+                ref={chartRef}
+                width={"100%"}
+                height={"100%"}
+                data={chartData}
+                options={{
+                  scales: {
+                    y: {
+                      ticks: {
+                        stepSize: 1,
+                      },
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            ) : (
+              <Bar
+                ref={chartRef}
+                width={"100%"}
+                height={"100%"}
+                data={chartData}
+                options={{
+                  scales: {
+                    y: {
+                      ticks: {
+                        stepSize: 1,
+                      },
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            ))}
+          {selectedTab === "assessmentsCompleted" &&
+            (chartData.datasets[0].data.every( (val, i, arr) => val === arr[0] ) === false ? (
+              <Line
+                ref={chartRef}
+                width={"100%"}
+                height={"100%"}
+                data={chartData}
+                options={{
+                  scales: {
+                    y: {
+                      ticks: {
+                        stepSize: 1,
+                      },
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            ) : (
+              <Bar
+                ref={chartRef}
+                width={"100%"}
+                height={"100%"}
+                data={chartData}
+                options={{
+                  scales: {
+                    y: {
+                      ticks: {
+                        stepSize: 1,
+                      },
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            ))}
           {selectedTab === "jobAnalysis" && (
             <Bar
               ref={chartRef}

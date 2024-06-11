@@ -171,7 +171,7 @@ export default function page({ params: { slug } }: PageProps) {
 
   const handleSubmitAssessment = async (data) => {
     try {
-      const userScore = evaluateAnswers(tasks, data);
+      const userScore = await evaluateAnswers(tasks, data);
       await submitAssessmentResults(slug, userScore);
     } catch (error) {
       console.error("Error submitting assessment:", error);
