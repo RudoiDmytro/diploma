@@ -76,9 +76,9 @@ export default async function TestDetailsPage({
         <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full md:min-w-[800px] p-8 rounded-3xl">
           <div
             key={result.resultId}
-            className="flex flex-row justify-between items-center w-full"
+            className="flex flex-row justify-center items-center w-full"
           >
-            <h1 className="md:text-5xl text-3xl bg-card bg-clip-text text-transparent font-bold p-1">
+            <h1 className="md:text-5xl text-4xl bg-card bg-clip-text text-transparent font-bold p-1">
               Your result is {result.score} %
             </h1>
           </div>

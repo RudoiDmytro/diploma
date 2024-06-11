@@ -35,20 +35,6 @@ const SigninButton = () => {
             <span>{session.user.username}</span>
             <span className="pb-2">{session.user.email}</span>
           </div>
-          <div className="flex flex-col w-full text-start">
-            <Link
-              href="/profile"
-              className="w-full hover:bg-muted dark:hover:bg-card px-4 py-2"
-            >
-              Profile
-            </Link>
-            <Link
-              href="/dashboard"
-              className="w-full hover:bg-muted dark:hover:bg-card px-4 py-2"
-            >
-              Dashboard
-            </Link>
-          </div>
           <button
             className="w-full px-4 py-2 hover:bg-muted dark:hover:bg-card text-start"
             onClick={() => signOut()}
