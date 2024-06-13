@@ -5,6 +5,7 @@ import { validateEmail } from "@/lib/utils";
 import { signIn } from "next-auth/react";
 import { Button } from "../ui/button";
 import GoogleButton from "./GoogleButton";
+import GithubButton from "./GithubButton";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -43,8 +44,9 @@ function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-muted shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
-        <div className="mb-4">
+        <div className="mb-4 flex flex-col gap-2">
           <GoogleButton callbackUrl="/test-library" />
+          <GithubButton callbackUrl="/test-library" />
         </div>
         <div className="mb-4">
           <label

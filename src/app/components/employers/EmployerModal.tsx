@@ -42,13 +42,17 @@ export default async function EmployerModal({
         {jobs.length > 1 ? (
           <div className="grid grid-cols-1 xl:grid-cols-2">
             {jobs.map((job: Job) => (
-              <JobListItem job={job} />
+              <Link key={job.slug} href={`/jobs/${job.slug}`} className="block">
+                <JobListItem job={job} />
+              </Link>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1">
             {jobs.map((job: Job) => (
-              <JobListItem job={job} />
+              <Link key={job.slug} href={`/jobs/${job.slug}`} className="block">
+                <JobListItem job={job} />
+              </Link>
             ))}
           </div>
         )}

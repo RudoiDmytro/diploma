@@ -4,6 +4,7 @@ import { Banknote, Briefcase, Globe2, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import Markdown from "../Markdown";
+import BackButton from "../BackButton";
 
 interface JobDetailsPageProps {
   job: Job;
@@ -25,6 +26,7 @@ export default function JobDetailsPage({
 }: JobDetailsPageProps) {
   return (
     <section className="w-full grow space-y-5">
+      <BackButton />
       <div className="flex items-center gap-4">
         {companyLogoUrl && (
           <Image

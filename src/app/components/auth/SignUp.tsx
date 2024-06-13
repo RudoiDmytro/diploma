@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { validateEmail } from "@/lib/utils";
 import { signIn } from "next-auth/react";
 import GoogleButton from "./GoogleButton";
+import GithubButton from "./GithubButton";
 
 function SignUp() {
   const [username, setUsername] = useState<string>();
@@ -73,7 +74,10 @@ function SignUp() {
         onSubmit={handleSubmit}
         className="bg-muted shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
-        <GoogleButton callbackUrl="/role-selection" />
+        <div className="mb-4 flex flex-col gap-2">
+          <GoogleButton callbackUrl="/test-library" />
+          <GithubButton callbackUrl="/test-library" />
+        </div>
         <label className="block text-card-foreground text-sm font-bold mt-4 mb-2">
           Choose your role
         </label>

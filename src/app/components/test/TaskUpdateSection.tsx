@@ -56,12 +56,12 @@ const TaskUpdateSection: React.FC<TaskUpdateSectionProps> = ({ tasks }) => {
   };
 
   return (
-    <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full md:min-w-[800px] p-8 rounded-3xl">
+    <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full lg:min-w-[800px] p-8 rounded-3xl">
       {tasksToUpdate.length > 0 ? (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-background">
-              <h1 className="md:text-5xl text-3xl bg-card bg-clip-text text-transparent font-bold p-1">
+              <h1 className="text-5xl bg-card bg-clip-text text-transparent font-bold p-1">
                 Tasks
               </h1>
             </AccordionTrigger>
