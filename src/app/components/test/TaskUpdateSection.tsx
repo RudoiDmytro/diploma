@@ -175,14 +175,22 @@ const TaskUpdateSection: React.FC<TaskUpdateSectionProps> = ({ tasks }) => {
                             <p className="max-w-2xl">{answer.description}</p>
                           )}
                           <p>
-                            <input
-                              type="checkbox"
-                              className="pointer-events-auto w-6 h-6 accent-card dark:accent-card-foreground bg-card-foreground dark:bg-card border-gray-300 rounded"
-                              checked={answer.correct}
-                              onChange={() =>
-                                handleCheckboxChange(taskIndex, answerIndex)
-                              }
-                            />
+                            {editMode ? (
+                              <input
+                                type="checkbox"
+                                className="pointer-events-auto cursor-pointer w-6 h-6 accent-card dark:accent-card-foreground bg-card-foreground dark:bg-card border-gray-300 rounded"
+                                checked={answer.correct}
+                                onChange={() =>
+                                  handleCheckboxChange(taskIndex, answerIndex)
+                                }
+                              />
+                            ) : (
+                              <input
+                                type="checkbox"
+                                className="pointer-events-none w-6 h-6 accent-card dark:accent-card-foreground bg-card-foreground dark:bg-card border-gray-300 rounded"
+                                checked={answer.correct}
+                              />
+                            )}
                           </p>
                         </div>
                       ))}
