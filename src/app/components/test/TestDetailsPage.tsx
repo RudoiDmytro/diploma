@@ -12,6 +12,7 @@ import Markdown from "../Markdown";
 import { getServerSession } from "next-auth";
 import { options } from "@/app/components/auth/Options";
 import TaskUpdateSection from "./TaskUpdateSection";
+import BackButton from "../BackButton";
 
 interface TestDetailsPageProps {
   task: Assessment;
@@ -34,8 +35,9 @@ export default async function TestDetailsPage({
   }));
 
   return (
-    <div className="flex flex-col items-center w-full space-y-5">
-      <section className="md:w-fit w-full grow space-y-5 p-8 gradient1 rounded-3xl">
+    <div className="flex flex-col items-end lg:items-start w-full space-y-5">
+      <BackButton />
+      <section className="lg:w-fit w-full grow space-y-5 p-8 gradient1 rounded-3xl">
         <div className="flex items-center gap-4 bg-background p-5 rounded-xl text-primary">
           {logoUrl && (
             <Image
@@ -73,7 +75,7 @@ export default async function TestDetailsPage({
         <TaskUpdateSection tasks={answersGroupedByTask} />
       )}
       {result && (
-        <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full md:min-w-[800px] p-8 rounded-3xl">
+        <div className="flex flex-col justify-start items-center gap-8 gradient1 w-full lg:min-w-[800px] p-8 rounded-3xl">
           <div
             key={result.resultId}
             className="flex flex-row justify-center items-center w-full"

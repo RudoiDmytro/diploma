@@ -39,13 +39,13 @@ export default async function page({ params: { slug } }: PageProps) {
   const results = await getResults(session?.user.id as string, slug);
   const tasks = await getTasks(slug);
   return (
-    <main className="flex flex-col items-center max-md:w-screen max-w-7xl">
-      <div className="flex flex-col px-4 max-w-7xl my-10 w-full md:flex-row items-center gap-5 md:items-start">
+    <main className="flex flex-col items-center max-lg:w-screen max-w-7xl">
+      <div className="flex flex-col px-4 max-w-7xl my-10 w-full lg:flex-row items-center gap-5 lg:items-start">
         <TestDetailsPage task={assessment} />
         <aside className="flex w-fit flex-col gap-5 sticky top-20">
           {!results && tasks.length > 0 && (
             <Button asChild>
-              <button className="w-full md:w-fit">
+              <button className="w-full lg:w-fit">
                 <Link href={`/test-library/${slug}/take-assessment`}>
                   Take assingment
                 </Link>
