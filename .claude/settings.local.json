@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del package-lock.json)",
+      "Bash(bun install)",
+      "Bash(where:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(bun run build:*)",
+      "Bash(bun add:*)",
+      "Bash(bun remove:*)",
+      "Bash(bunx prisma generate:*)",
+      "Bash(bun test:*)"
+    ]
+  }
+}

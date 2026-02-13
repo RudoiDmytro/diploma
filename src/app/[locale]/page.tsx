@@ -12,7 +12,6 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 const MainCarousel = dynamic(() => import("../components/MainCarousel"), {
-  ssr: false,
   loading: () => <Loading />,
 });
 

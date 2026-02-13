@@ -11,7 +11,7 @@ import { getResults, getTasks } from "@/lib/serverUtils";
 import TestDetailsPage from "@/app/components/test/TestDetailsPage";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const getAssessment = cache(async (slug: string) => {
@@ -24,8 +24,9 @@ const getAssessment = cache(async (slug: string) => {
 });
 
 export async function generateMetadata({
-  params: { slug },
+  params,
 }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
   const assessment = await getAssessment(slug);
 
   return {
@@ -33,7 +34,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function page({ params: { slug } }: PageProps) {
+export default async function page({ params }: PageProps) {
+  const { slug } = await params;
   const assessment = await getAssessment(slug);
   const session = await getServerSession(options);
   const results = await getResults(session?.user.id as string, slug);

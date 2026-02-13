@@ -54,7 +54,7 @@ export async function addTasksToAssessment(formData) {
           taskToken,
           type,
           taskFileUrl,
-          question: question.blocks[0].text,
+          question: question,
           ponderation,
           assessment: { connect: { slug: assessmentSlug } },
         },

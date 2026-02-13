@@ -1,12 +1,10 @@
 "use client";
 
 import NavButton from "@/app/components/nav/NavButton";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/portfolio.png";
 import { Moon, Sun } from "lucide-react";
-import { useState, useEffect, useTransition, ChangeEvent } from "react";
-import Cookies from "js-cookie";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import ProfileButton from "./ProfileButton";
@@ -25,28 +23,17 @@ type NavButtonGroupProps = {
 
 export default function PcNav({ navItems, locale }: NavButtonGroupProps) {
   const pathName = usePathname();
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    const theme = Cookies.get("theme");
-    setIsDarkMode(theme === "dark");
-    setTheme(theme || "light");
-  }, []);
-
-  useEffect(() => {
-    setIsDarkMode(theme === "dark");
-  }, [theme]);
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { status } = useSession();
+  const isDarkMode = (resolvedTheme ?? theme) === "dark";
 
   const toggleTheme = () => {
     const newTheme = isDarkMode ? "light" : "dark";
     setTheme(newTheme);
-    Cookies.set("theme", newTheme);
   };
 
   return (
-    <nav className="sticky top-0 z-10 bg-white backdrop-filter backdrop-blur-lg bg-opacity-10 border-b border-muted w-full">
+    <nav className="sticky top-0 z-10 bg-white/10 dark:bg-black/10 backdrop-blur-lg border-b border-muted w-full">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-10 justify-start h-16">

@@ -2,7 +2,7 @@
 
 import { Answer, Assessment } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { evaluateAnswers, submitAssessmentResults } from "./actions";
 import {
@@ -21,7 +21,7 @@ import { Button } from "@/app/components/ui/button";
 import Link from "next/link";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 interface Task {
@@ -34,7 +34,8 @@ interface Task {
   answers: Answer[];
 }
 
-export default function page({ params: { slug } }: PageProps) {
+export default function page({ params }: PageProps) {
+  const { slug } = use(params);
   const form = useForm();
   const router = useRouter();
 

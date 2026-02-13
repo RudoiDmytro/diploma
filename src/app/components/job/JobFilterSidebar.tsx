@@ -9,9 +9,7 @@ import { db } from "@/lib/db";
 import dynamic from "next/dynamic";
 import SkillSelector from "../SkillSelector";
 
-const CategoryButton = dynamic(() => import("../CategoryButton"), {
-  ssr: false,
-});
+const CategoryButton = dynamic(() => import("../CategoryButton"));
 
 const filterJobs = async (formData: FormData) => {
   "use server";

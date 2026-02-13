@@ -10,9 +10,7 @@ import dynamic from "next/dynamic";
 import SkillSelector from "../SkillSelector";
 import { getTranslations } from "next-intl/server";
 
-const CategoryButton = dynamic(() => import("../CategoryButton"), {
-  ssr: false,
-});
+const CategoryButton = dynamic(() => import("../CategoryButton"));
 
 const filterTests = async (formData: FormData) => {
   "use server";

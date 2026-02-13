@@ -19,12 +19,12 @@ export const metadata: Metadata = {
 };
 
 type LayoutProps = {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
   children: React.ReactNode;
 };
 
 export default async function RootLayout({ params, children }: LayoutProps) {
-  const { locale } = params;
+  const { locale } = await params;
 
   const messages = await getMessages();
 
@@ -42,7 +42,8 @@ export default async function RootLayout({ params, children }: LayoutProps) {
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="light"
+            enableSystem={false}
             disableTransitionOnChange
           >
             <main className="flex flex-col justify-between items-center h-fit min-h-svh">

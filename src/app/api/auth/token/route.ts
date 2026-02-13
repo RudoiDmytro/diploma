@@ -1,9 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { options } from "@/app/components/auth/Options";
 
-export async function GET(req: NextRequest, res: NextResponse) {
-  const getCookies = cookies()
-  const nextAuthSession = getCookies.get('next-auth.session-token')?.value || ''
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(options);
 
-  return NextResponse.json(nextAuthSession)
+  if (!session) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  return NextResponse.json({ authenticated: true });
 }

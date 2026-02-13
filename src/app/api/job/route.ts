@@ -9,6 +9,10 @@ export async function GET() {
     });
     return NextResponse.json(res);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    return NextResponse.json(
+      { error: "Failed to fetch jobs" },
+      { status: 500 }
+    );
   }
 }

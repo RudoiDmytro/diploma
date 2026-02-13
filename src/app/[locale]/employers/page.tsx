@@ -10,7 +10,6 @@ import H1 from "@/app/components/ui/h1";
 const EmployerModal = dynamic(
   () => import("../../components/employers/EmployerModal"),
   {
-    ssr: false,
     loading: () => <Loading />,
   }
 );
@@ -26,11 +25,12 @@ const getJobs = cache(async () => {
 });
 
 type SearchParamProps = {
-  searchParams: Record<string, string> | null | undefined;
+  searchParams: Promise<Record<string, string> | null | undefined>;
 };
 
-export default async function page({ searchParams }: SearchParamProps) {
+export default async function page({ searchParams: searchParamsPromise }: SearchParamProps) {
   const jobs = await getJobs();
+  const searchParams = await searchParamsPromise;
   const companyName = searchParams?.companyName;
 
   return (

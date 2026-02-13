@@ -20,6 +20,10 @@ export async function GET() {
       },
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    return NextResponse.json(
+      { error: "Failed to fetch job filters" },
+      { status: 500 }
+    );
   }
 }

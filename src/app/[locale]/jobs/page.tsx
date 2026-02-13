@@ -20,15 +20,15 @@ import {
 import { getTranslations } from "next-intl/server";
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     type?: string;
     location?: string;
     remote?: string;
     skills?: string;
     category?: string;
-  };
-  params: { locale: string };
+  }>;
+  params: Promise<{ locale: string }>;
 };
 
 const getTitle = async({
@@ -59,8 +59,9 @@ const getTitle = async({
 };
 
 export const generateMetadata = async({
-  searchParams: { q, type, location, remote, skills, category },
+  searchParams,
 }: PageProps): Promise<Metadata> => {
+  const { q, type, location, remote, skills, category } = await searchParams;
   return {
     title: `${await getTitle({
       q,
@@ -74,9 +75,11 @@ export const generateMetadata = async({
 };
 
 export default async function Jobs({
-  searchParams: { q, type, location, remote, skills, category },
-  params: { locale },
+  searchParams: searchParamsPromise,
+  params: paramsPromise,
 }: PageProps) {
+  const { q, type, location, remote, skills, category } = await searchParamsPromise;
+  const { locale } = await paramsPromise;
   const filterValues: JobFilterValues = {
     q,
     type,

@@ -12,7 +12,6 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import RichTextEditor from "@/app/components/RichTextEditor";
-import { draftToMarkdown } from "markdown-draft-js";
 import LoadingButton from "@/app/components/LoadingButton";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -297,17 +296,14 @@ export default function AddTasks(props) {
                                         <FormItem>
                                           <FormControl>
                                             <RichTextEditor
-                                              onChange={(draft) => (
-                                                field.onChange(
-                                                  draftToMarkdown(draft)
-                                                ),
+                                              onChange={(html) => {
+                                                field.onChange(html);
                                                 updateTest(
                                                   testIndex,
                                                   "question",
-                                                  draft
-                                                )
-                                              )}
-                                              ref={field.ref}
+                                                  html
+                                                );
+                                              }}
                                             />
                                           </FormControl>
                                           <FormMessage />

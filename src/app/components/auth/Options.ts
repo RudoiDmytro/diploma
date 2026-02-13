@@ -4,7 +4,7 @@ import NextAuth, {
   SessionStrategy,
   getServerSession,
 } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import GoogleProvider from "next-auth/providers/google";

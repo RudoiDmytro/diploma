@@ -1,58 +1,65 @@
-import { NextResponse } from "next/server";
-import path from "path";
-import { writeFile, readFile } from "fs/promises";
+import { NextRequest, NextResponse } from "next/server";
+import { put } from "@vercel/blob";
+import { nanoid } from "nanoid";
 
-export async function POST(req, res) {
+export async function POST(req: NextRequest) {
   const formData = await req.formData();
+  const file = formData.get("companyLogo") as File | null;
 
-  const file = formData.get("companyLogo");
   if (!file) {
     return NextResponse.json({ error: "No files received." }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const filename = file.name.replaceAll(" ", "_");
+  const ext = file.name.split(".").pop() || "bin";
+  const safeName = `${nanoid()}.${ext.replace(/[^a-zA-Z0-9]/g, "")}`;
 
   try {
-    await writeFile(path.join(process.cwd(), "src/assets/" + filename), buffer);
-    return NextResponse.json({ Message: "Success", status: 201 });
+    const blob = await put(`uploads/${safeName}`, file, {
+      access: "public",
+    });
+
+    return NextResponse.json({ url: blob.url }, { status: 201 });
   } catch (error) {
-    console.log("Error occured ", error);
-    return NextResponse.json({ Message: "Failed", status: 500 });
+    console.error("File upload error:", error);
+    return NextResponse.json(
+      { error: "File upload failed" },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET(req:Request) {
-  const baseUrl = "https://upcdn.io";
-  const body = await req.json();
-  const path = `/${body.accountId}/raw${body.filePath}`;
-  const entries = (obj) =>
-    Object.entries(obj).filter(([, val]) => (val ?? null) !== null);
-  const query = entries(body.querystring ?? {})
-    .flatMap(([k, v]) => (Array.isArray(v) ? v.map((v2) => [k, v2]) : [[k, v]]))
-    .map((kv) => kv.join("="))
-    .join("&");
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const fileUrl = searchParams.get("url");
 
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set("Authorization", `Bearer ${process.env.apiKey}`);
-
-  const response = await fetch(
-    `${baseUrl}${path}${query.length > 0 ? "?" : ""}${query}`,
-    {
-      method: "GET",
-      headers: requestHeaders,
-    }
-  );
-
-  if (Math.floor(response.status / 100) !== 2) {
-    const result = await response.json();
-    throw new Error(`Bytescale API Error: ${JSON.stringify(result)}`);
+  if (!fileUrl) {
+    return NextResponse.json(
+      { error: "Missing 'url' query parameter" },
+      { status: 400 }
+    );
   }
 
   try {
-    return NextResponse.json(response.blob());
+    const response = await fetch(fileUrl);
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch file" },
+        { status: response.status }
+      );
+    }
+
+    const blob = await response.blob();
+    return new NextResponse(blob, {
+      headers: {
+        "Content-Type": response.headers.get("Content-Type") || "application/octet-stream",
+      },
+    });
   } catch (error) {
-    console.log("Error occured ", error);
-    return NextResponse.json({ Message: "Failed", status: 500 });
+    console.error("File fetch error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch file" },
+      { status: 500 }
+    );
   }
 }

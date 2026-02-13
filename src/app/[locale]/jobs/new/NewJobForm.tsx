@@ -19,7 +19,6 @@ import LocationInput from "@/app/components/job/LocationInput";
 import { X } from "lucide-react";
 import { Label } from "@/app/components/ui/label";
 import RichTextEditor from "@/app/components/RichTextEditor";
-import { draftToMarkdown } from "markdown-draft-js";
 import LoadingButton from "@/app/components/LoadingButton";
 import { createJobPosting } from "./actions";
 import { useState, useEffect } from "react";
@@ -432,10 +431,7 @@ export default function NewJobForm() {
                   </Label>
                   <FormControl>
                     <RichTextEditor
-                      onChange={(draft) =>
-                        field.onChange(draftToMarkdown(draft))
-                      }
-                      ref={field.ref}
+                      onChange={(html) => field.onChange(html)}
                     />
                   </FormControl>
                   <FormMessage />

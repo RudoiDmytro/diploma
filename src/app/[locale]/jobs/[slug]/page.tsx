@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import { Button } from "@/app/components/ui/button";
 import JobDetailsPage from "@/app/components/job/JobDetailsPage";
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const getJob = cache(async (slug: string) => {
@@ -18,8 +18,9 @@ const getJob = cache(async (slug: string) => {
 });
 
 export async function generateMetadata({
-  params: { slug },
+  params,
 }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
   const job = await getJob(slug);
 
   return {
@@ -27,7 +28,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function page({ params: { slug } }: PageProps) {
+export default async function page({ params }: PageProps) {
+  const { slug } = await params;
   const job = await getJob(slug);
 
   const { applicationEmail, applicationUrl } = job;

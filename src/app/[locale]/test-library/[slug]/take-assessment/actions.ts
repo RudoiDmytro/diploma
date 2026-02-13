@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { options } from "@/app/components/auth/Options";
 import { getServerSession } from "next-auth";
 
-export const evaluateAnswers = (tasks, selectedAnswers) => {
+export const evaluateAnswers = async (tasks, selectedAnswers) => {
   let score = 0;
   const totalPoints = tasks.reduce((sum, task) => sum + task.ponderation, 0);
 

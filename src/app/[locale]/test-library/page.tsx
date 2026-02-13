@@ -20,13 +20,13 @@ import {
 import { getTranslations } from "next-intl/server";
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     type?: string;
     category?: string;
     skills?: string;
-  };
-  params: { locale: string };
+  }>;
+  params: Promise<{ locale: string }>;
 };
 
 const getTitle = async ({ q, type, category, skills }: TestFilterValues) => {
@@ -48,8 +48,9 @@ const getTitle = async ({ q, type, category, skills }: TestFilterValues) => {
 };
 
 export const generateMetadata = async({
-  searchParams: { q, type, category, skills },
+  searchParams,
 }: PageProps): Promise<Metadata> => {
+  const { q, type, category, skills } = await searchParams;
   return {
     title: `${await getTitle({
       q,
@@ -61,9 +62,11 @@ export const generateMetadata = async({
 };
 
 export default async function TestLibrary({
-  searchParams: { q, type, category, skills },
-  params: { locale },
+  searchParams: searchParamsPromise,
+  params: paramsPromise,
 }: PageProps) {
+  const { q, type, category, skills } = await searchParamsPromise;
+  const { locale } = await paramsPromise;
   const filterValues: TestFilterValues = {
     q,
     type,

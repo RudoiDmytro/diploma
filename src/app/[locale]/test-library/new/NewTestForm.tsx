@@ -15,7 +15,6 @@ import { Input } from "@/app/components/ui/input";
 import Select from "@/app/components/ui/select";
 import { Label } from "@/app/components/ui/label";
 import RichTextEditor from "@/app/components/RichTextEditor";
-import { draftToMarkdown } from "markdown-draft-js";
 import LoadingButton from "@/app/components/LoadingButton";
 import { Category, Skill } from "@prisma/client";
 import { Dialog, Transition } from "@headlessui/react";
@@ -379,10 +378,7 @@ export default function NewTestForm() {
                   </Label>
                   <FormControl>
                     <RichTextEditor
-                      onChange={(draft) =>
-                        field.onChange(draftToMarkdown(draft))
-                      }
-                      ref={field.ref}
+                      onChange={(html) => field.onChange(html)}
                     />
                   </FormControl>
                   <FormMessage />
