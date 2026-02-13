@@ -113,15 +113,35 @@
   transform: rotate(180deg);
 }
 
-.gradient1 {
+@utility gradient1 {
   background: var(--gradient1);
 }
-.gradient2 {
+@utility gradient2 {
   background: var(--gradient2);
 }
-
-.gradient3 {
+@utility gradient3 {
   background: var(--gradient3);
+}
+
+@utility hover-gradient1 {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gradient1);
+    opacity: 0;
+    transition: opacity 300ms ease-in-out;
+    z-index: -1;
+    border-radius: inherit;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
 }
 
 .dark {

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/app/components/nav/Navbar";
-import Footer from "@/app/components/footer/Footer";
-import { ThemeProvider } from "@/app/components/themeProvider";
+import Navbar from "@/widgets/navigation/ui/Navbar";
+import Footer from "@/widgets/footer/ui/Footer";
+import { ThemeProvider } from "@/shared/providers";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { NextIntlClientProvider } from "next-intl";
@@ -44,7 +44,6 @@ export default async function RootLayout({ params, children }: LayoutProps) {
             attribute="class"
             defaultTheme="light"
             enableSystem={false}
-            disableTransitionOnChange
           >
             <main className="flex flex-col justify-between items-center h-fit min-h-svh">
               <Navbar locale={locale} />
@@ -57,3 +56,6 @@ export default async function RootLayout({ params, children }: LayoutProps) {
     </html>
   );
 }
+
+
+

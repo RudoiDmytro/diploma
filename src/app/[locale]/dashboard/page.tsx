@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
-import AnalysisTab from "@/app/components/dashboard/AnalysisTab";
+import AnalysisTab from "@/widgets/dashboard/ui/AnalysisTab";
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("analysis");
@@ -45,3 +45,5 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+

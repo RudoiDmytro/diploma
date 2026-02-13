@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { options } from "@/app/components/auth/Options";
+import { options } from "@/features/auth";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(options);
@@ -14,3 +14,5 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ authenticated: true });
 }
+
+

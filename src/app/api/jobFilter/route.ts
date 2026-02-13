@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+﻿import { db } from "@/shared/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -27,3 +27,4 @@ export async function GET() {
     );
   }
 }
+

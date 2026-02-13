@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 import { useSession } from "next-auth/react";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import { useRouter } from "next/navigation";
 
 const page = () => {
@@ -51,3 +51,4 @@ const page = () => {
 };
 
 export default page;
+

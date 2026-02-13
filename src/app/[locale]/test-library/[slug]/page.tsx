@@ -1,14 +1,14 @@
-import { cache } from "react";
-import { db } from "@/lib/db";
+﻿import { cache } from "react";
+import { db } from "@/shared/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Button } from "@/app/components/ui/button";
-import AddTasks from "@/app/components/test/addTasks";
-import { options } from "@/app/components/auth/Options";
+import { Button } from "@/shared/ui/button";
+import AddTasks from "@/widgets/test/ui/addTasks";
+import { options } from "@/features/auth";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { getResults, getTasks } from "@/lib/serverUtils";
-import TestDetailsPage from "@/app/components/test/TestDetailsPage";
+import { getResults, getTasks } from "@/shared/lib/serverUtils";
+import TestDetailsPage from "@/widgets/test/ui/TestDetailsPage";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -60,3 +60,6 @@ export default async function page({ params }: PageProps) {
     </main>
   );
 }
+
+
+

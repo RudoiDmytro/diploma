@@ -1,22 +1,22 @@
-import JobFilterSidebar from "@/app/components/job/JobFilterSidebar";
-import JobResults from "@/app/components/job/JobResults";
-import { Button } from "@/app/components/ui/button";
-import H1 from "@/app/components/ui/h1";
-import { JobFilterValues } from "@/lib/validation";
+﻿import JobFilterSidebar from "@/widgets/job/ui/JobFilterSidebar";
+import JobResults from "@/widgets/job/ui/JobResults";
+import { Button } from "@/shared/ui/button";
+import H1 from "@/shared/ui/h1";
+import { JobFilterValues } from "@/shared/lib/validation";
 import { Metadata } from "next";
 import Link from "next/link";
-import { options } from "@/app/components/auth/Options";
+import { options } from "@/features/auth";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover";
+} from "@/shared/ui/popover";
 import { getServerSession } from "next-auth";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
-} from "@/app/components/ui/drawer";
+} from "@/shared/ui/drawer";
 import { getTranslations } from "next-intl/server";
 
 type PageProps = {
@@ -146,3 +146,6 @@ export default async function Jobs({
     </main>
   );
 }
+
+
+

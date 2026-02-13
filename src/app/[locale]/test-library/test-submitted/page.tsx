@@ -1,4 +1,4 @@
-import H1 from "@/app/components/ui/h1";
+﻿import H1 from "@/shared/ui/h1";
 
 export default function page() {
   return (
@@ -8,3 +8,4 @@ export default function page() {
     </main>
   );
 }
+

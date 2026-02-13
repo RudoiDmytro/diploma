@@ -1,14 +1,14 @@
-import { Job, Prisma } from "@prisma/client";
-import { db } from "@/lib/db";
+﻿import { Job, Prisma } from "@prisma/client";
+import { db } from "@/shared/lib/db";
 import Link from "next/link";
 import { cache } from "react";
-import EmployersListItem from "../../components/employers/EmployersListItem";
+import EmployersListItem from "@/widgets/employers/ui/EmployersListItem";
 import dynamic from "next/dynamic";
 import Loading from "../loading";
-import H1 from "@/app/components/ui/h1";
+import H1 from "@/shared/ui/h1";
 
 const EmployerModal = dynamic(
-  () => import("../../components/employers/EmployerModal"),
+  () => import("@/widgets/employers/ui/EmployerModal"),
   {
     loading: () => <Loading />,
   }
@@ -54,3 +54,6 @@ export default async function page({ searchParams: searchParamsPromise }: Search
     </main>
   );
 }
+
+
+

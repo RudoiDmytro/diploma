@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+﻿import { db } from "@/shared/lib/db";
 import { NextRequest } from "next/server";
 
 export async function PATCH(req: NextRequest) {
@@ -28,3 +28,4 @@ export async function PATCH(req: NextRequest) {
     console.error("Failed to update tasks:", error);
   }
 }
+

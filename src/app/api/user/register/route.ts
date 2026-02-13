@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+﻿import { db } from "@/shared/lib/db";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -51,3 +51,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

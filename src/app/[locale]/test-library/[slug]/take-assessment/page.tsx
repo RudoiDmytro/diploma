@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Answer, Assessment } from "@prisma/client";
 import Image from "next/image";
@@ -12,12 +12,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/app/components/ui/form";
-import LoadingButton from "@/app/components/LoadingButton";
-import { Input } from "@/app/components/ui/input";
-import CountdownTimer from "@/app/components/test/countdown/Countdown";
+} from "@/shared/ui/form";
+import LoadingButton from "@/shared/ui/LoadingButton";
+import { Input } from "@/shared/ui/input";
+import CountdownTimer from "@/widgets/test/ui/countdown/Countdown";
 import { redirect, usePathname, useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import Link from "next/link";
 
 interface PageProps {
@@ -39,7 +39,7 @@ export default function page({ params }: PageProps) {
   const form = useForm();
   const router = useRouter();
 
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
 
   useEffect(() => {
     if (!pathname.includes("/take-assessment")) {
@@ -336,3 +336,5 @@ export default function page({ params }: PageProps) {
     </main>
   );
 }
+
+

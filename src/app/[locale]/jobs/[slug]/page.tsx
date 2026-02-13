@@ -1,9 +1,9 @@
-import { cache } from "react";
-import { db } from "@/lib/db";
+﻿import { cache } from "react";
+import { db } from "@/shared/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Button } from "@/app/components/ui/button";
-import JobDetailsPage from "@/app/components/job/JobDetailsPage";
+import { Button } from "@/shared/ui/button";
+import JobDetailsPage from "@/widgets/job/ui/JobDetailsPage";
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -56,3 +56,5 @@ export default async function page({ params }: PageProps) {
     </main>
   );
 }
+
+

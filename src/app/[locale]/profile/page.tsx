@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
-import AnalysisTab from "@/app/components/dashboard/UserAnalysisTab";
-import AddedJobsTab from "@/app/components/dashboard/AddedJobsTab";
-import AddedAssessmentsTab from "@/app/components/dashboard/AddedAssessmentsTab";
-import AppliedJobsTab from "@/app/components/dashboard/AppliedJobsTab";
-import PassedAssessmentsTab from "@/app/components/dashboard/PassedAssessmentsTab";
+import AnalysisTab from "@/widgets/dashboard/ui/UserAnalysisTab";
+import AddedJobsTab from "@/widgets/dashboard/ui/AddedJobsTab";
+import AddedAssessmentsTab from "@/widgets/dashboard/ui/AddedAssessmentsTab";
+import AppliedJobsTab from "@/widgets/dashboard/ui/AppliedJobsTab";
+import PassedAssessmentsTab from "@/widgets/dashboard/ui/PassedAssessmentsTab";
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("analysis");
@@ -79,3 +79,5 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+

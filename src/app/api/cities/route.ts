@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+﻿import { db } from "@/shared/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -26,3 +26,4 @@ export async function POST(req: NextRequest) {
     console.log(err);
   }
 }
+

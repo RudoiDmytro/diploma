@@ -1,6 +1,6 @@
-import { getServerSession } from "next-auth";
-import { options } from "@/app/components/auth/Options";
-import { db } from "@/lib/db";
+﻿import { getServerSession } from "next-auth";
+import { options } from "@/features/auth";
+import { db } from "@/shared/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -33,3 +33,5 @@ export async function GET() {
     results: user?.Result,
   });
 }
+
+

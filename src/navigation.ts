@@ -1,1 +1,1 @@
-export { Link, getPathname, redirect, usePathname, useRouter } from './config';
+﻿export * from "@/shared/config/navigation";

@@ -1,6 +1,6 @@
-import H1 from "@/app/components/ui/h1";
+﻿import H1 from "@/shared/ui/h1";
 import Link from "next/link";
-import { Button } from "../components/ui/button";
+import { Button } from "@/shared/ui/button";
 
 export default function NotFound() {
   return (
@@ -13,3 +13,5 @@ export default function NotFound() {
     </main>
   );
 }
+
+

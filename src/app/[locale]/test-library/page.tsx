@@ -1,22 +1,22 @@
-import TestFilterSidebar from "@/app/components/test/TestFilterSidebar";
-import TestResults from "@/app/components/test/TestResults";
-import { Button } from "@/app/components/ui/button";
-import H1 from "@/app/components/ui/h1";
-import { TestFilterValues } from "@/lib/validation";
+﻿import TestFilterSidebar from "@/widgets/test/ui/TestFilterSidebar";
+import TestResults from "@/widgets/test/ui/TestResults";
+import { Button } from "@/shared/ui/button";
+import H1 from "@/shared/ui/h1";
+import { TestFilterValues } from "@/shared/lib/validation";
 import { Metadata } from "next";
 import Link from "next/link";
-import { options } from "@/app/components/auth/Options";
+import { options } from "@/features/auth";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover";
+} from "@/shared/ui/popover";
 import { getServerSession } from "next-auth";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
-} from "@/app/components/ui/drawer";
+} from "@/shared/ui/drawer";
 import { getTranslations } from "next-intl/server";
 
 type PageProps = {
@@ -134,3 +134,6 @@ export default async function TestLibrary({
     </main>
   );
 }
+
+
+

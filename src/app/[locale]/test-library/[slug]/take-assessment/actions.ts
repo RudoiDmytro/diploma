@@ -1,7 +1,7 @@
-"use server";
+﻿"use server";
 
-import { db } from "@/lib/db";
-import { options } from "@/app/components/auth/Options";
+import { db } from "@/shared/lib/db";
+import { options } from "@/features/auth";
 import { getServerSession } from "next-auth";
 
 export const evaluateAnswers = async (tasks, selectedAnswers) => {
@@ -84,3 +84,5 @@ export const submitAssessmentResults = async (slug, score) => {
   });
   
 };
+
+

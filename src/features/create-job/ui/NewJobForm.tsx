@@ -1,0 +1,680 @@
+"use client";
+import H1 from "@/shared/ui/h1";
+import { createJobValues } from "@/shared/lib/validation";
+import { useForm, Controller, get } from "react-hook-form";
+import { createJobSchema } from "@/shared/lib/validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shared/ui/form";
+import { Input } from "@/shared/ui/input";
+import Select from "@/shared/ui/select";
+import { jobTypes, locationTypes } from "@/entities/job";
+import LocationInput from "@/widgets/job/ui/LocationInput";
+import { X } from "lucide-react";
+import { Label } from "@/shared/ui/label";
+import RichTextEditor from "@/shared/ui/RichTextEditor";
+import LoadingButton from "@/shared/ui/LoadingButton";
+import { createJobPosting } from "../api/actions";
+import { useState, useEffect } from "react";
+import { Category, Skill } from "@prisma/client";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { Checkbox } from "@/shared/ui/checkbox";
+import Spinner from "@/shared/ui/spinner";
+
+const CheckboxField = ({
+  skill,
+  label,
+  control,
+  handleSkillSelect,
+  isChecked,
+}) => (
+  <Controller
+    control={control}
+    name={`requiredSkills.${skill.skillId}`}
+    render={({ field }) => (
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={isChecked}
+          onCheckedChange={(checked) => {
+            field.onChange(checked);
+            handleSkillSelect(skill);
+          }}
+        />
+        <label>{label}</label>
+      </div>
+    )}
+  />
+);
+
+export default function NewJobForm() {
+  const form = useForm<createJobValues>({
+    resolver: zodResolver(createJobSchema),
+  });
+
+  const [categories, setCategories] = useState([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
+  const [newSkillName, setNewSkillName] = useState("");
+
+  useEffect(() => {
+    const storedSkills = localStorage.getItem("selectedSkills");
+    if (storedSkills) {
+      try {
+        const parsed = JSON.parse(storedSkills);
+        if (Array.isArray(parsed)) {
+          setSelectedSkills(
+            parsed.filter(
+              (skill): skill is Skill =>
+                typeof skill === "object" &&
+                skill !== null &&
+                "skillId" in skill &&
+                "skillName" in skill
+            )
+          );
+        }
+      } catch {
+        // Ignore legacy/non-JSON values (e.g. CSV skill names from old filters)
+        localStorage.removeItem("selectedSkills");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await fetch("/api/skills");
+        if (!response.ok) {
+          throw new Error("Failed to fetch skills");
+        }
+        const data = await response.json();
+        setSkills(data);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const currentValue = get(form.control, "requiredSkills.value");
+    const updatedValue = currentValue?.filter((id) =>
+      selectedSkills.includes(id)
+    );
+    form.setValue("requiredSkills", updatedValue || []);
+  }, [selectedSkills, form.control, form.setValue]);
+
+  const handleSkillsDialogOpen = () => {
+    setIsSkillsDialogOpen(true);
+  };
+
+  const handleSkillsDialogClose = () => {
+    setIsSkillsDialogOpen(false);
+    setNewSkillName("");
+  };
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  const handleSkillSelect = (skill: Skill) => {
+    const updatedSkills = selectedSkills.includes(skill)
+      ? selectedSkills.filter((s) => s.skillId !== skill.skillId)
+      : [...selectedSkills, skill];
+    if (isMounted) {
+      setSelectedSkills(updatedSkills);
+      localStorage.setItem("selectedSkills", JSON.stringify(updatedSkills));
+    }
+  };
+
+  const handleNewSkillSubmit = async () => {
+    try {
+      const response = await fetch("/api/skills", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ skillName: newSkillName }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create new skill");
+      }
+      const newSkill = await response.json();
+      setSkills([...skills, newSkill]);
+      setSelectedSkills([...selectedSkills, newSkill]);
+      setNewSkillName("");
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(err.message);
+      }
+    }
+  };
+
+  if (error) return <div>Failed to load: {error}</div>;
+  if (loading) return <Spinner />;
+
+  const appendToFormData = (formData, key, value) => {
+    if (value === null || value === undefined) {
+      return;
+    }
+    if (key === "requiredSkills") {
+      formData.append(key, JSON.stringify(value));
+    } else if (value instanceof File) {
+      formData.append(key, value);
+    } else if (Array.isArray(value)) {
+      if (value.length === 0) {
+        formData.append(key, "[]");
+      } else {
+        value.forEach((item) => {
+          formData.append(key, item);
+        });
+      }
+    } else {
+      formData.append(key, value);
+    }
+  };
+
+  const onSubmit = async (values: createJobValues) => {
+    const formData = new FormData();
+    const skillIds = selectedSkills.map((skill) => skill.skillId);
+
+    formData.append("requiredSkills", JSON.stringify(skillIds));
+
+    Object.entries(values).forEach(([key, value]) => {
+      if (key !== "requiredSkills") {
+        appendToFormData(formData, key, value);
+      }
+    });
+
+    try {
+      await createJobPosting(formData);
+      localStorage.removeItem("selectedSkills");
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const {
+    handleSubmit,
+    watch,
+    trigger,
+    control,
+    setValue,
+    setFocus,
+    formState: { isSubmitting },
+  } = form;
+
+  return (
+    <main className="max-w-3xl m-auto my-10 space-y-10">
+      <div className="space-y-5 text-center">
+        <H1>Find your perfect job applicant</H1>
+        <p className="text-muted-foreground">
+          Get your job posting seen by thousands of job seekers
+        </p>
+      </div>
+      <div className="space-y-6 border rounded-lg p-4">
+        <div>
+          <h2 className="font-semibold">Job details</h2>
+          <p className="text-muted-foreground">
+            Provide a job description and detail
+          </p>
+        </div>
+        <Form {...form}>
+          <form
+            className="space-y-4"
+            noValidate
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <FormField
+              control={control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Frontend Developer" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job type</FormLabel>
+                  <FormControl>
+                    <Select {...field} defaultValue="">
+                      <option value="" hidden>
+                        Select an option
+                      </option>
+                      {jobTypes.map((jobType) => (
+                        <option value={jobType} key={jobType}>
+                          {jobType}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="companyName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="companyLogo"
+              render={({ field: { value, ...fieldValues } }) => (
+                <FormItem>
+                  <FormLabel>Company logo</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...fieldValues}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        fieldValues.onChange(file);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="locationType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <Select
+                      {...field}
+                      defaultValue=""
+                      onChange={(e) => {
+                        field.onChange(e);
+                        if (e.currentTarget.value === "Remote")
+                          trigger("location");
+                      }}
+                    >
+                      <option value="" hidden>
+                        Select an option
+                      </option>
+                      {locationTypes.map((locationTypes) => (
+                        <option value={locationTypes} key={locationTypes}>
+                          {locationTypes}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Office location</FormLabel>
+                  <FormControl>
+                    <LocationInput
+                      onLocationSelected={field.onChange}
+                      ref={field.ref}
+                    />
+                  </FormControl>
+                  {watch("location") && (
+                    <div className="flex items-center gap-1">
+                      <button type="button">
+                        <X
+                          size={20}
+                          onClick={() =>
+                            setValue("location", "", { shouldValidate: true })
+                          }
+                        />
+                      </button>
+                      <span className="text-sm">{watch("location")}</span>
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="space-y-2">
+              <Label htmlFor="applicationEmail">How to apply</Label>
+              <div className="flex justify-between">
+                <FormField
+                  control={control}
+                  name="applicationEmail"
+                  render={({ field }) => (
+                    <FormItem className="grow">
+                      <FormControl>
+                        <div className="flex items-center">
+                          <Input
+                            id="applicationEmail"
+                            placeholder="Email"
+                            type="email"
+                            {...field}
+                          />
+                          <span className="mx-2">or</span>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name="applicationUrl"
+                  render={({ field }) => (
+                    <FormItem className="grow">
+                      <FormControl>
+                        <Input
+                          placeholder="Website"
+                          type="url"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            trigger("applicationEmail");
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <FormField
+              control={control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <Label onClick={() => setFocus("description")}>
+                    Description
+                  </Label>
+                  <FormControl>
+                    <RichTextEditor
+                      onChange={(html) => field.onChange(html)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Select {...field} defaultValue="">
+                      <option value="" hidden>
+                        Select a category
+                      </option>
+                      {categories.map((category: Category) => (
+                        <option
+                          value={category.categoryId}
+                          key={category.categoryId}
+                        >
+                          {category.naming}
+                        </option>
+                      ))}
+                      <option value="new">Add new category</option>
+                    </Select>
+                  </FormControl>
+                  {watch("category") === "new" && (
+                    <div className="mt-2">
+                      <FormField
+                        control={control}
+                        name="newCategory"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter new category"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="requiredSkills"
+              render={() => (
+                <FormItem>
+                  <FormLabel>
+                    <p>Required Skills</p>
+                    <button
+                      type="button"
+                      className="gradient1 hover:gradient2 text-background focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-2 py-1.5 text-center mt-2 me-2 mb-2"
+                      onClick={handleSkillsDialogOpen}
+                    >
+                      Select Skills
+                    </button>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="selected-skills-container">
+                      {selectedSkills &&
+                        selectedSkills.map((skill) => (
+                          <div
+                            key={skill.skillId}
+                            id="badge-dismiss-red"
+                            className="inline-flex items-center bg-card text-foreground text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-foreground"
+                          >
+                            {skill.skillName}
+                            <button
+                              type="button"
+                              className="inline-flex items-center p-1 ms-2 text-sm text-foreground bg-transparent rounded-sm hover:text-background hover-gradient1 "
+                              data-dismiss-target="#badge-dismiss-red"
+                              aria-label="Remove"
+                              onClick={() => {
+                                setSelectedSkills(
+                                  selectedSkills.filter(
+                                    (s) => s.skillId !== skill.skillId
+                                  )
+                                );
+                                localStorage.setItem(
+                                  "selectedSkills",
+                                  JSON.stringify(
+                                    selectedSkills.filter(
+                                      (s) => s.skillId !== skill.skillId
+                                    )
+                                  )
+                                );
+                              }}
+                            >
+                              <svg
+                                className="w-2 h-2"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                />
+                              </svg>
+                              <span className="sr-only">Remove badge</span>
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Transition appear show={isSkillsDialogOpen} as={Fragment}>
+              <Dialog
+                as="div"
+                className="fixed inset-0 z-50 overflow-y-auto"
+                onClose={handleSkillsDialogClose}
+              >
+                <div className="min-h-screen px-4 text-center">
+                  <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+                  </Transition.Child>
+
+                  <span
+                    className="inline-block h-screen align-middle"
+                    aria-hidden="true"
+                  >
+                    &#8203;
+                  </span>
+                  <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 scale-95"
+                    enterTo="opacity-100 scale-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100 scale-100"
+                    leaveTo="opacity-0 scale-95"
+                  >
+                    <div className="relative z-50 inline-block w-full max-w-md p-6 my-8 overflow-hidden align-middle transition-all transform bg-popover shadow-xl rounded-2xl">
+                      <Dialog.Title
+                        as="h3"
+                        className="text-lg font-medium leading-6 text-popover-foreground"
+                      >
+                        Select Required Skills
+                      </Dialog.Title>
+                      <div className="mt-4 space-y-2 grid grid-flow-row auto-rows-min gap-3">
+                        {skills.map((skill) => (
+                          <div key={skill.skillId}>
+                            <CheckboxField
+                              skill={skill}
+                              label={skill.skillName}
+                              control={form.control}
+                              handleSkillSelect={handleSkillSelect}
+                              isChecked={selectedSkills.some(
+                                (s) => s.skillId === skill.skillId
+                              )}
+                            />
+                          </div>
+                        ))}
+                        <div className="mt-4">
+                          <input
+                            type="text"
+                            placeholder="Add new skill"
+                            value={newSkillName}
+                            onChange={(e) => setNewSkillName(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                          />
+                          <button
+                            type="button"
+                            className="gradient1 hover:gradient2 text-background px-2 py-1 rounded ml-2"
+                            onClick={handleNewSkillSubmit}
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          className="inline-flex justify-center px-4 py-2 text-sm font-medium text-background gradient1 border border-transparent rounded-md hover:gradient2 focus:outline-none focus-visible:ring-2"
+                          onClick={handleSkillsDialogClose}
+                        >
+                          Confirm
+                        </button>
+                      </div>
+                    </div>
+                  </Transition.Child>
+                </div>
+              </Dialog>
+            </Transition>
+            <FormField
+              control={control}
+              name="salary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Salary</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="number" value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <LoadingButton type="submit" loading={isSubmitting}>
+              Submit
+            </LoadingButton>
+          </form>
+        </Form>
+      </div>
+    </main>
+  );
+}

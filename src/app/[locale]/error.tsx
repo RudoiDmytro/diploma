@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import H1 from "@/app/components/ui/h1";
+import H1 from "@/shared/ui/h1";
 
 export default function Error() {
   return (
@@ -10,3 +10,4 @@ export default function Error() {
     </main>
   );
 }
+

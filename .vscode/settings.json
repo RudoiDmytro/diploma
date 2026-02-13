@@ -1,5 +1,8 @@
 {
-    "i18n-ally.localesPaths": [
-        "messages"
-    ]
+  "i18n-ally.localesPaths": [
+    "messages"
+  ],
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore"
 }

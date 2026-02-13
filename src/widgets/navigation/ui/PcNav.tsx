@@ -1,0 +1,106 @@
+﻿"use client";
+
+import NavButton from "@/widgets/navigation/ui/NavButton";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import logo from "@/shared/assets/portfolio.png";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useSession } from "next-auth/react";
+import ProfileButton from "./ProfileButton";
+import RegisterModal from "@/features/auth/ui/RegisterModal";
+import LocaleSwitcher from "./LocaleSwitcher";
+
+type NavItem = {
+  label: string;
+  link: string;
+};
+
+type NavButtonGroupProps = {
+  navItems: NavItem[];
+  locale: string;
+};
+
+export default function PcNav({ navItems, locale }: NavButtonGroupProps) {
+  const pathName = usePathname() ?? "";
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { status } = useSession();
+  const isDarkMode = (resolvedTheme ?? theme) === "dark";
+
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+    setTheme(newTheme);
+  };
+
+  return (
+    <nav className="sticky top-0 z-10 bg-white/10 dark:bg-black/10 backdrop-blur-lg border-b border-muted w-full">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center space-x-10 justify-start h-16">
+            <Image src={logo} alt="Skills&Work logo" width={40} height={40} />
+            <div className="flex space-x-4">
+              {navItems.map((item, index) => (
+                <NavButton
+                  key={index}
+                  href={item.link}
+                  locale={locale}
+                  styles={`max-lg:hidden min-w-fit p-3 rounded-2xl transition-all duration-150 ease-in-out ${
+                    (pathName === `/${locale}` && pathName.includes(`${item.link}`)) ||
+                    pathName.endsWith(`${item.link}`) ||
+                    pathName.includes(`${item.link}/`)
+                      ? "gradient2 font-bold text-white hover:gradient2"
+                      : "hover-gradient1 hover:text-background"
+                  }`}
+                >
+                  {item.label}
+                </NavButton>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-row space-x-5">
+            <div className="justify-center space-x-3 flex flex-row items-center transition-all ease-in-out">
+              <div className="inline-flex rounded-md shadow-sm " role="group">
+                {status === "authenticated" && <ProfileButton />}
+                {status === "unauthenticated" && (
+                  <>
+                    <RegisterModal tab="register" />
+                    <RegisterModal tab="sign-in" />
+                  </>
+                )}
+              </div>
+              <div className="flex flex-row justify-between toggle">
+                <label
+                  htmlFor="dark-toggle"
+                  className="flex items-center cursor-pointer"
+                >
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      name="dark-mode"
+                      id="dark-toggle"
+                      className="checkbox hidden"
+                      checked={isDarkMode}
+                      onChange={toggleTheme}
+                    />
+                    <div className="block border dark:border-white border-gray-900 w-14 h-8 rounded-full"></div>
+                    <div
+                      className={`dot absolute left-1 top-1 dark:bg-white bg-gray-800 w-6 h-6 rounded-full transition duration-500 ${
+                        isDarkMode ? "translate-x-full " : ""
+                      }`}
+                    ></div>
+                  </div>
+                  <div className="ml-3 dark:text-white text-gray-900 font-medium">
+                    {isDarkMode ? <Moon /> : <Sun />}
+                  </div>
+                </label>
+              </div>
+            </div>
+            <LocaleSwitcher />
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+
