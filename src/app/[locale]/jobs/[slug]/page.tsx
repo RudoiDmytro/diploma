@@ -2,10 +2,13 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Button } from "@/app/components/ui/button";
-import JobDetailsPage from "@/app/components/job/JobDetailsPage";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import JobDetailsPage from "@/features/jobs/components/JobDetailsPage";
+import Styles from "./page.styles";
+
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const getJob = cache(async (slug: string) => {
@@ -18,8 +21,9 @@ const getJob = cache(async (slug: string) => {
 });
 
 export async function generateMetadata({
-  params: { slug },
+  params,
 }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
   const job = await getJob(slug);
 
   return {
@@ -27,7 +31,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function page({ params: { slug } }: PageProps) {
+export default async function page({ params }: PageProps) {
+  const { slug } = await params;
   const job = await getJob(slug);
 
   const { applicationEmail, applicationUrl } = job;
@@ -42,15 +47,18 @@ export default async function page({ params: { slug } }: PageProps) {
   }
 
   return (
-    <main className="flex flex-col px-4 max-w-7xl m-auto my-10 md:flex-row items-center gap-5 md:items-start">
+    <Box component="main" id="main-content" sx={Styles.main}>
       <JobDetailsPage job={job} />
-      <aside>
-        <Button asChild>
-          <a href={applicationLink} className="w-40 md:w-fit">
-            Apply now
-          </a>
+      <Box component="aside">
+        <Button
+          variant="contained"
+          component="a"
+          href={applicationLink}
+          sx={Styles.applyButton}
+        >
+          Apply now
         </Button>
-      </aside>
-    </main>
+      </Box>
+    </Box>
   );
 }

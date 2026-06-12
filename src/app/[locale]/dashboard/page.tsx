@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import AnalysisTab from "@/app/components/dashboard/AnalysisTab";
+import Box from "@mui/material/Box";
+import AnalysisTab from "@/features/dashboard/components/AnalysisTab";
+import Styles from "./page.styles";
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("analysis");
@@ -36,11 +38,11 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen flex flex-row">
-      <div className="flex flex-col w-full max-w-7xl">
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Box sx={Styles.inner}>
         <AnalysisTab />
-      </div>
-    </main>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,13 +1,28 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import AnalysisTab from "@/app/components/dashboard/UserAnalysisTab";
-import AddedJobsTab from "@/app/components/dashboard/AddedJobsTab";
-import AddedAssessmentsTab from "@/app/components/dashboard/AddedAssessmentsTab";
-import AppliedJobsTab from "@/app/components/dashboard/AppliedJobsTab";
-import PassedAssessmentsTab from "@/app/components/dashboard/PassedAssessmentsTab";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { useTranslations } from "next-intl";
+import AnalysisTab from "@/features/dashboard/components/UserAnalysisTab";
+import AddedJobsTab from "@/features/dashboard/components/AddedJobsTab";
+import AddedAssessmentsTab from "@/features/dashboard/components/AddedAssessmentsTab";
+import AppliedJobsTab from "@/features/dashboard/components/AppliedJobsTab";
+import PassedAssessmentsTab from "@/features/dashboard/components/PassedAssessmentsTab";
+import Styles from "./page.styles";
+
+const TABS = [
+  { key: "analysis", label: "Analysis" },
+  { key: "addedJobs", label: "Added Jobs" },
+  { key: "addedAssessments", label: "Added Assessments" },
+  { key: "appliedJobs", label: "Applied Jobs" },
+  { key: "passedAssessments", label: "Passed Assessments" },
+] as const;
 
 const Dashboard: React.FC = () => {
+  const t = useTranslations("A11y");
+  const tDashboard = useTranslations("Dashboard");
   const [activeTab, setActiveTab] = useState("analysis");
   const [board, setBoard] = useState({
     jobs: [],
@@ -15,8 +30,8 @@ const Dashboard: React.FC = () => {
     applications: [],
     results: [],
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [, setLoading] = useState(true);
+  const [, setError] = useState("");
 
   useEffect(() => {
     const fetchValues = async () => {
@@ -57,24 +72,35 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen flex flex-row">
-      <aside className="flex flex-col fixed top-20 left-0 ml-8 mt-10">
-        <nav>
-          <ul className="space-y-5">
-            <li onClick={() => setActiveTab("analysis")}>Analysis</li>
-            <li onClick={() => setActiveTab("addedJobs")}>Added Jobs</li>
-            <li onClick={() => setActiveTab("addedAssessments")}>
-              Added Assessments
-            </li>
-            <li onClick={() => setActiveTab("appliedJobs")}>Applied Jobs</li>
-            <li onClick={() => setActiveTab("passedAssessments")}>
-              Passed Assessments
-            </li>
-          </ul>
-        </nav>
-      </aside>
-      <div className="flex flex-col w-full max-w-7xl">{renderTab()}</div>
-    </main>
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Box component="aside" sx={Styles.sidebar}>
+        <Box component="nav" aria-label={t("dashboard_navigation")}>
+          <Box component="ul" sx={Styles.navList}>
+            {TABS.map((tab) => (
+              <Box component="li" key={tab.key} sx={Styles.navItem}>
+                <Button
+                  variant="text"
+                  onClick={() => setActiveTab(tab.key)}
+                  aria-current={activeTab === tab.key ? "page" : undefined}
+                  sx={[
+                    Styles.navButton,
+                    activeTab === tab.key && Styles.navButtonActive,
+                  ]}
+                >
+                  {tab.label}
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+      <Box sx={Styles.content}>
+        <Typography variant="h1" component="h1" sx={Styles.pageTitle}>
+          {tDashboard("title")}
+        </Typography>
+        {renderTab()}
+      </Box>
+    </Box>
   );
 };
 

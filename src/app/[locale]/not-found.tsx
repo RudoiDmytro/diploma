@@ -1,15 +1,26 @@
-import H1 from "@/app/components/ui/h1";
 import Link from "next/link";
-import { Button } from "../components/ui/button";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Styles from "./not-found.styles";
 
 export default function NotFound() {
   return (
-    <main className="max-w-5xl m-auto my-10 space-y-5 px-3 text-center">
-      <H1>Not found</H1>
-      <p>The page you are looking for is not exists</p>
-      <Button>
-        <Link href="/">Go home</Link>
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Typography variant="h1" component="h1" sx={Styles.heading}>
+        Not found
+      </Typography>
+      <Typography component="p" sx={Styles.message}>
+        The page you are looking for is not exists
+      </Typography>
+      <Button
+        component={Link}
+        href="/"
+        variant="contained"
+        sx={Styles.homeButton}
+      >
+        Go home
       </Button>
-    </main>
+    </Box>
   );
 }

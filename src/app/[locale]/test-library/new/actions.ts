@@ -7,7 +7,7 @@ import { put } from "@vercel/blob";
 import path from "path";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { options } from "@/app/components/auth/Options";
+import { options } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 
 export async function createTestPosting(formData: FormData) {

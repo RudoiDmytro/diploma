@@ -1,9 +1,12 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { Button } from "@/app/components/ui/button";
 import { useRouter } from "next/navigation";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Styles from "./page.styles";
 
-const page = () => {
+const Page = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -14,7 +17,7 @@ const page = () => {
         session,
       };
 
-      const updateUserRole = await fetch("/api/user/register/role", {
+      await fetch("/api/user/register/role", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -28,26 +31,28 @@ const page = () => {
   };
 
   return (
-    <div className="m-auto">
-      <h2 className="block text-card-foreground text-md font-bold mb-2">
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Typography variant="h1" component="h1" sx={Styles.heading}>
         Choose your role
-      </h2>
-      <div className="flex flex-row justify-between space-x-2">
+      </Typography>
+      <Box sx={Styles.actions}>
         <Button
-          className="w-full"
+          variant="contained"
+          sx={Styles.roleButton}
           onClick={() => handleRoleSelection("SEEKER")}
         >
           Job Seeker
         </Button>
         <Button
-          className="w-full"
+          variant="contained"
+          sx={Styles.roleButton}
           onClick={() => handleRoleSelection("EMPLOYER")}
         >
           Employer
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
-export default page;
+export default Page;

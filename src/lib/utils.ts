@@ -1,11 +1,4 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { formatDistanceToNowStrict } from "date-fns";
-
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 export const validateEmail = (email) => {
   return String(email)
