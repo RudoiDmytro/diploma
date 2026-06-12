@@ -1,19 +1,18 @@
-import { Job, Prisma } from "@prisma/client";
+import { Job } from "@prisma/client";
+import { Box, Typography } from "@mui/material";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { cache } from "react";
-import EmployersListItem from "../../components/employers/EmployersListItem";
-import dynamic from "next/dynamic";
-import Loading from "../loading";
-import H1 from "@/app/components/ui/h1";
+import { Metadata } from "next";
+import EmployersListItem from "@/features/employers/components/EmployersListItem";
+import EmployerModal from "@/features/employers/components/EmployerModal";
+import Styles from "./page.styles";
 
-const EmployerModal = dynamic(
-  () => import("../../components/employers/EmployerModal"),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "All employers that have added jobs",
+};
 
 const getJobs = cache(async () => {
   const jobs = await db.job.findMany({
@@ -26,17 +25,19 @@ const getJobs = cache(async () => {
 });
 
 type SearchParamProps = {
-  searchParams: Record<string, string> | null | undefined;
+  searchParams: Promise<{ companyName?: string }>;
 };
 
-export default async function page({ searchParams }: SearchParamProps) {
+export default async function Page({ searchParams }: SearchParamProps) {
   const jobs = await getJobs();
-  const companyName = searchParams?.companyName;
+  const { companyName } = await searchParams;
 
   return (
-    <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen text-center">
-      <H1>All employers that have added jobs</H1>
-      <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 text-start place-content-start col-span-2">
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Typography variant="h1" component="h1" sx={Styles.h1}>
+        All employers that have added jobs
+      </Typography>
+      <Box sx={Styles.grid}>
         {jobs.map((job: Job) => (
           <Link
             key={job.slug}
@@ -46,11 +47,13 @@ export default async function page({ searchParams }: SearchParamProps) {
           </Link>
         ))}
         {jobs.length === 0 && (
-          <p className="text-center m-auto">There are no employers yet.</p>
+          <Typography component="p" sx={Styles.empty}>
+            There are no employers yet.
+          </Typography>
         )}
 
         {companyName && <EmployerModal companyName={companyName} />}
-      </div>
-    </main>
+      </Box>
+    </Box>
   );
 }

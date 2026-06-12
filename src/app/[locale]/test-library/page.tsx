@@ -1,32 +1,27 @@
-import TestFilterSidebar from "@/app/components/test/TestFilterSidebar";
-import TestResults from "@/app/components/test/TestResults";
-import { Button } from "@/app/components/ui/button";
-import H1 from "@/app/components/ui/h1";
+import TestFilterSidebar from "@/features/assessments/components/TestFilterSidebar";
+import TestResults from "@/features/assessments/components/TestResults";
 import { TestFilterValues } from "@/lib/validation";
 import { Metadata } from "next";
 import Link from "next/link";
-import { options } from "@/app/components/auth/Options";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/app/components/ui/popover";
+import { options } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/app/components/ui/drawer";
 import { getTranslations } from "next-intl/server";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import AddNewPopover from "./AddNewPopover";
+import FilterDrawer from "./FilterDrawer";
+import Styles from "./page.styles";
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     type?: string;
     category?: string;
     skills?: string;
-  };
-  params: { locale: string };
+  }>;
+  params: Promise<{ locale: string }>;
 };
 
 const getTitle = async ({ q, type, category, skills }: TestFilterValues) => {
@@ -47,9 +42,10 @@ const getTitle = async ({ q, type, category, skills }: TestFilterValues) => {
   return `${title}`;
 };
 
-export const generateMetadata = async({
-  searchParams: { q, type, category, skills },
+export const generateMetadata = async ({
+  searchParams,
 }: PageProps): Promise<Metadata> => {
+  const { q, type, category, skills } = await searchParams;
   return {
     title: `${await getTitle({
       q,
@@ -60,10 +56,9 @@ export const generateMetadata = async({
   };
 };
 
-export default async function TestLibrary({
-  searchParams: { q, type, category, skills },
-  params: { locale },
-}: PageProps) {
+export default async function TestLibrary({ searchParams, params }: PageProps) {
+  const { q, type, category, skills } = await searchParams;
+  const { locale } = await params;
   const filterValues: TestFilterValues = {
     q,
     type,
@@ -74,60 +69,43 @@ export default async function TestLibrary({
   const t = await getTranslations("TestLibrary");
 
   return (
-    <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
-      <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
-        <div>
-          <H1>{await getTitle(filterValues)}</H1>
-          <p className="text-muted-foreground">{t("complete")}</p>
-        </div>
-        <aside className="md:absolute md:right-0">
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Box component="header" sx={Styles.header}>
+        <Box>
+          <Typography variant="h1" component="h1" sx={Styles.heading}>
+            {await getTitle(filterValues)}
+          </Typography>
+          <Typography component="p" sx={Styles.subtitle}>
+            {t("complete")}
+          </Typography>
+        </Box>
+        <Box component="aside" sx={Styles.headerAside}>
           {session?.user.role === "EMPLOYER" ? (
-            <Button asChild>
-              <Link
-                href="/test-library/new"
-                locale={locale}
-                className="w-40 md:w-fit"
-              >
-                {t("add_new")}
-              </Link>
+            <Button
+              component={Link}
+              href="/test-library/new"
+              locale={locale}
+              variant="contained"
+              sx={Styles.addNewLinkButton}
+            >
+              {t("add_new")}
             </Button>
           ) : !session ? (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button>{t("add_new")}</Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-1" align="center">
-                <span>{t("to_add_new")}</span>
-              </PopoverContent>
-            </Popover>
+            <AddNewPopover label={t("add_new")} message={t("to_add_new")} />
           ) : (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button>{t("add_new")}</Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-1" align="center">
-                <span>{t("to_add_new_emp")}</span>
-              </PopoverContent>
-            </Popover>
+            <AddNewPopover label={t("add_new")} message={t("to_add_new_emp")} />
           )}
-        </aside>
-      </div>
-      <section className="flex flex-col space-y-3 lg:flex-row-reverse gap-3">
-        <div className="lg:hidden">
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button className="w-fit fixed right-5 top-20">{t("filter")}</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <TestFilterSidebar defaultValues={filterValues} />
-            </DrawerContent>
-          </Drawer>
-        </div>
-        <div className="max-lg:hidden">
+        </Box>
+      </Box>
+      <Stack component="section" sx={Styles.section}>
+        <FilterDrawer label={t("filter")}>
           <TestFilterSidebar defaultValues={filterValues} />
-        </div>
+        </FilterDrawer>
+        <Box sx={Styles.desktopSidebar}>
+          <TestFilterSidebar defaultValues={filterValues} />
+        </Box>
         <TestResults filterValues={filterValues} />
-      </section>
-    </main>
+      </Stack>
+    </Box>
   );
 }

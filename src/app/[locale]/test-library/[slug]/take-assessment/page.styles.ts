@@ -1,0 +1,178 @@
+import { colors } from "@/styles/colors";
+import breakpoints from "@/styles/breakpoints";
+
+export default {
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100vw",
+    [`@media (min-width:${breakpoints.values.md}px)`]: {
+      width: "auto",
+      maxWidth: "80rem",
+    },
+  },
+  countdownAside: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.25rem",
+    position: "fixed",
+    top: "5rem",
+    right: 0,
+    marginRight: "2rem",
+    zIndex: 10,
+  },
+  formWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    paddingInline: "1rem",
+    margin: "2.5rem auto",
+    alignItems: "center",
+    gap: "1.25rem",
+    [`@media (min-width:${breakpoints.values.md}px)`]: {
+      alignItems: "flex-start",
+    },
+  },
+  pageTitle: {
+    fontSize: "2.25rem",
+    fontWeight: 700,
+    color: colors.text.primary,
+    alignSelf: "flex-start",
+  },
+  taskSection: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.25rem",
+    padding: "1.25rem",
+    backgroundColor: colors.background.card,
+    borderRadius: "1.5rem",
+    marginBottom: "1.25rem",
+  },
+  taskHeader: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "1rem",
+    backgroundColor: colors.background.default,
+    padding: "1.25rem",
+    borderRadius: "0.75rem",
+    color: colors.text.primary,
+  },
+  taskType: {
+    fontSize: "1rem",
+    lineHeight: 1.5,
+    fontWeight: 600,
+    color: colors.text.primary,
+  },
+  taskMeta: {
+    color: colors.text.muted,
+  },
+  taskMetaRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    margin: 0,
+  },
+  questionRow: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "0.5rem",
+    width: "100%",
+    margin: 0,
+  },
+  questionText: {
+    fontWeight: 600,
+    color: colors.text.cardForeground,
+    padding: "0.5rem",
+    backgroundColor: colors.background.card,
+    borderRadius: "0.75rem",
+  },
+  imageWrapper: {
+    position: "relative",
+    width: "100%",
+    height: "300px",
+    [`@media (min-width:${breakpoints.values.lg}px)`]: {
+      width: "800px",
+      height: "600px",
+    },
+    "& img": {
+      borderRadius: "0.5rem",
+      alignSelf: "center",
+      backgroundColor: colors.background.default,
+      padding: "0.25rem",
+    },
+  },
+  imageError: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: colors.background.default,
+    padding: "0.25rem",
+    color: colors.text.primary,
+  },
+  answersBlock: {
+    display: "flex",
+    flexDirection: "column",
+    backgroundColor: colors.background.default,
+    borderRadius: "0.375rem",
+    color: colors.text.primary,
+  },
+  answersHeaderRow: {
+    display: "flex",
+    flexDirection: "row",
+    margin: "0.5rem",
+    justifyContent: "space-between",
+  },
+  answersHeading: {
+    fontWeight: 600,
+    fontSize: "1rem",
+    lineHeight: 1.5,
+    marginLeft: "0.5rem",
+  },
+  answerRow: {
+    display: "flex",
+    gap: "0.5rem",
+    margin: "0.25rem",
+    justifyContent: "space-between",
+    padding: "0.75rem",
+    borderRadius: "0.375rem",
+    color: colors.text.primary,
+    alignItems: "center",
+    borderBottom: "2px solid",
+    borderColor: colors.border.default,
+    "&:last-of-type": {
+      borderBottom: "none",
+    },
+  },
+  answerLabel: {
+    margin: 0,
+    flexGrow: 1,
+    "& .MuiFormControlLabel-label": {
+      maxWidth: "42rem",
+      color: colors.text.primary,
+    },
+  },
+  submitButton: {
+    width: "fit-content",
+    textTransform: "none",
+  },
+  dialogActions: {
+    padding: "1.25rem",
+  },
+  dialogButton: {
+    width: "100%",
+    textTransform: "none",
+  },
+  dialogLink: {
+    width: "100%",
+    textTransform: "none",
+    textAlign: "center",
+  },
+  statusWrapper: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.75rem",
+    padding: "2.5rem",
+  },
+};

@@ -1,0 +1,33 @@
+# Dependencies & build output (rebuilt inside the image)
+node_modules
+.next
+out
+build
+coverage
+
+# Version control & CI
+.git
+.gitattributes
+.github
+.vscode
+.vs
+
+# Local env (never bake secrets into an image) — keep the example
+.env
+.env.*
+!.env.example
+
+# Docker / tooling meta
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+Makefile
+
+# Logs & OS cruft
+*.log
+npm-debug.log*
+.DS_Store
+
+# Docs
+*.md
+!README.md

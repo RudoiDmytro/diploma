@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { writeFile, readFile } from "fs/promises";
-import { options } from "@/app/components/auth/Options";
+import { options } from "@/lib/auth";
 // import * as Bytescale from "@bytescale/sdk";
 
 

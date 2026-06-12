@@ -34,5 +34,39 @@
     "category": "Category",
     "skills": "Skills",
     "filter_tests": "Filter tests"
+  },
+  "A11y": {
+    "skip_to_content": "Skip to main content",
+    "open_menu": "Open navigation menu",
+    "close_menu": "Close navigation menu",
+    "navigation_menu": "Navigation menu",
+    "switch_to_dark": "Switch to dark theme",
+    "switch_to_light": "Switch to light theme",
+    "change_language": "Change language",
+    "open_profile_menu": "Open profile menu",
+    "previous_slide": "Previous slide",
+    "next_slide": "Next slide",
+    "pause_carousel": "Pause carousel",
+    "play_carousel": "Play carousel",
+    "loading": "Loading",
+    "close_dialog": "Close dialog",
+    "remove_skill": "Remove skill {skill}",
+    "remove_location": "Remove selected location",
+    "search": "Search",
+    "time_remaining": "Time remaining",
+    "retry": "Try again",
+    "markdown_editor": "Markdown editor",
+    "countdown_danger": "Hurry, time is almost up",
+    "minutes_remaining": "{minutes} minutes remaining",
+    "primary_navigation": "Primary navigation",
+    "dashboard_navigation": "Dashboard navigation",
+    "leave_assessment_warning": "You appear to have left the assessment. You will be redirected shortly."
+  },
+  "Dashboard": {
+    "analysis_charts": "Analysis charts",
+    "title": "Your dashboard"
+  },
+  "TakeAssessment": {
+    "title": "Take assessment"
   }
 }

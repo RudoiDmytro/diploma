@@ -1,25 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
-import { locales, localePrefix, pathnames } from "./config";
-
 import createMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
 
-export async function middleware(req: NextRequest) {
-  if (req.referrer?.includes("/role-selection")) {
-    setInterval(async () => {
-      return NextResponse.redirect(`${origin}`);
-    }, 2000);
-  }
-
-  const intlMiddleware = createMiddleware({
-    defaultLocale: "en",
-    localePrefix,
-    locales,
-    pathnames,
-  });
-
-  return intlMiddleware(req);
-}
+export default createMiddleware(routing);
 
 export const config = {
   matcher: [

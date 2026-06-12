@@ -8,6 +8,9 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+/playwright/.cache
 
 # next.js
 /.next/
@@ -15,6 +18,10 @@
 
 # production
 /build
+
+# tooling (rust-code-analysis binary, swc cache)
+/bin
+/.swc
 
 # misc
 .DS_Store

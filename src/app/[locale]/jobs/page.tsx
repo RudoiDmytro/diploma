@@ -1,37 +1,27 @@
-import JobFilterSidebar from "@/app/components/job/JobFilterSidebar";
-import JobResults from "@/app/components/job/JobResults";
-import { Button } from "@/app/components/ui/button";
-import H1 from "@/app/components/ui/h1";
+import JobFilterSidebar from "@/features/jobs/components/JobFilterSidebar";
+import JobResults from "@/features/jobs/components/JobResults";
+import { Box, Button, Typography } from "@mui/material";
 import { JobFilterValues } from "@/lib/validation";
 import { Metadata } from "next";
 import Link from "next/link";
-import { options } from "@/app/components/auth/Options";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/app/components/ui/popover";
+import { options } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/app/components/ui/drawer";
 import { getTranslations } from "next-intl/server";
+import Styles from "./page.styles";
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     type?: string;
     location?: string;
     remote?: string;
     skills?: string;
     category?: string;
-  };
-  params: { locale: string };
+  }>;
+  params: Promise<{ locale: string }>;
 };
 
-const getTitle = async({
+const getTitle = async ({
   q,
   type,
   location,
@@ -58,9 +48,10 @@ const getTitle = async({
   return `${title}${titelSuffix}`;
 };
 
-export const generateMetadata = async({
-  searchParams: { q, type, location, remote, skills, category },
+export const generateMetadata = async ({
+  searchParams,
 }: PageProps): Promise<Metadata> => {
+  const { q, type, location, remote, skills, category } = await searchParams;
   return {
     title: `${await getTitle({
       q,
@@ -73,10 +64,9 @@ export const generateMetadata = async({
   };
 };
 
-export default async function Jobs({
-  searchParams: { q, type, location, remote, skills, category },
-  params: { locale },
-}: PageProps) {
+export default async function Jobs({ searchParams, params }: PageProps) {
+  const { q, type, location, remote, skills, category } = await searchParams;
+  const { locale } = await params;
   const filterValues: JobFilterValues = {
     q,
     type,
@@ -90,56 +80,62 @@ export default async function Jobs({
   const t = await getTranslations("JobLibrary");
 
   return (
-    <main className="px-3 m-auto max-w-7xl my-10 space-y-10 min-h-screen">
-      <div className="relative space-y-5 text-center flex flex-row max-md:flex-col px-4 m-auto items-center justify-center">
-        <div>
-          <H1>{await getTitle(filterValues)}</H1>
-          <p className="text-muted-foreground">{t("find")}</p>
-        </div>
-        <aside className="md:absolute md:right-0">
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Box component="header" sx={Styles.header}>
+        <Box>
+          <Typography variant="h1" component="h1" sx={Styles.h1}>
+            {await getTitle(filterValues)}
+          </Typography>
+          <Typography component="p" sx={Styles.subtitle}>
+            {t("find")}
+          </Typography>
+        </Box>
+        <Box component="aside" sx={Styles.headerAside}>
           {session?.user.role === "EMPLOYER" ? (
-            <Button asChild>
-              <Link href="/jobs/new" locale={locale} className="w-40 md:w-fit">
-                {t("add_new")}
-              </Link>
+            <Button
+              variant="contained"
+              component={Link}
+              href="/jobs/new"
+              locale={locale}
+              sx={Styles.addLink}
+            >
+              {t("add_new")}
             </Button>
           ) : !session ? (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button>{t("add_new")}</Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-1" align="center">
-                <span>{t("to_add_new")}</span>
-              </PopoverContent>
-            </Popover>
+            <Box component="details" sx={Styles.infoDisclosure}>
+              <Box component="summary" sx={Styles.triggerButton}>
+                {t("add_new")}
+              </Box>
+              <Typography component="p" sx={Styles.infoPopover}>
+                {t("to_add_new")}
+              </Typography>
+            </Box>
           ) : (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button>{t("add_new")}</Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-1" align="center">
-                <span>{t("to_add_new_emp")}</span>
-              </PopoverContent>
-            </Popover>
+            <Box component="details" sx={Styles.infoDisclosure}>
+              <Box component="summary" sx={Styles.triggerButton}>
+                {t("add_new")}
+              </Box>
+              <Typography component="p" sx={Styles.infoPopover}>
+                {t("to_add_new_emp")}
+              </Typography>
+            </Box>
           )}
-        </aside>
-      </div>
-      <section className="flex flex-col space-y-3 lg:flex-row-reverse gap-3">
-        <div className="lg:hidden">
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button className="w-fit fixed right-5 top-20">{t("filter")}</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <JobFilterSidebar defaultValues={filterValues} />
-            </DrawerContent>
-          </Drawer>
-        </div>
-        <div className="max-lg:hidden">
+        </Box>
+      </Box>
+      <Box component="section" sx={Styles.resultsSection}>
+        <Box sx={Styles.mobileFilterWrap}>
+          <Box component="details" sx={Styles.filterDisclosure}>
+            <Box component="summary" sx={Styles.filterSummary}>
+              {t("filter")}
+            </Box>
+            <JobFilterSidebar defaultValues={filterValues} />
+          </Box>
+        </Box>
+        <Box sx={Styles.desktopFilterWrap}>
           <JobFilterSidebar defaultValues={filterValues} />
-        </div>
+        </Box>
         <JobResults filterValues={filterValues} />
-      </section>
-    </main>
+      </Box>
+    </Box>
   );
 }

@@ -1,10 +1,21 @@
-import H1 from "@/app/components/ui/h1";
+import { Metadata } from "next";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Styles from "./page.styles";
+
+export const metadata: Metadata = {
+  title: "Job submitted",
+};
 
 export default function page() {
   return (
-    <main className="m-auto my-10 max-w-5xl space-y-5 px-3 text-center">
-      <H1>Job submitted</H1>
-      <p>Your job has been submitted and is pending approval.</p>
-    </main>
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Typography variant="h1" component="h1" sx={Styles.title}>
+        Job submitted
+      </Typography>
+      <Typography component="p">
+        Your job has been submitted and is pending approval.
+      </Typography>
+    </Box>
   );
 }

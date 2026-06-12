@@ -34,5 +34,39 @@
     "category": "Категорія",
     "skills": "Навички",
     "filter_tests": "Фільтрувати"
+  },
+  "A11y": {
+    "skip_to_content": "Перейти до основного вмісту",
+    "open_menu": "Відкрити меню навігації",
+    "close_menu": "Закрити меню навігації",
+    "navigation_menu": "Меню навігації",
+    "switch_to_dark": "Увімкнути темну тему",
+    "switch_to_light": "Увімкнути світлу тему",
+    "change_language": "Змінити мову",
+    "open_profile_menu": "Відкрити меню профілю",
+    "previous_slide": "Попередній слайд",
+    "next_slide": "Наступний слайд",
+    "pause_carousel": "Призупинити карусель",
+    "play_carousel": "Відтворити карусель",
+    "loading": "Завантаження",
+    "close_dialog": "Закрити діалогове вікно",
+    "remove_skill": "Видалити навичку {skill}",
+    "remove_location": "Видалити вибране місце",
+    "search": "Пошук",
+    "time_remaining": "Залишилось часу",
+    "retry": "Спробувати ще раз",
+    "markdown_editor": "Редактор Markdown",
+    "countdown_danger": "Поспішайте, час майже вичерпано",
+    "minutes_remaining": "Залишилося {minutes} хв",
+    "primary_navigation": "Основна навігація",
+    "dashboard_navigation": "Навігація панелі керування",
+    "leave_assessment_warning": "Схоже, ви залишили оцінювання. Вас буде перенаправлено найближчим часом."
+  },
+  "Dashboard": {
+    "analysis_charts": "Графіки аналітики",
+    "title": "Ваша панель керування"
+  },
+  "TakeAssessment": {
+    "title": "Проходження оцінювання"
   }
 }

@@ -1,20 +1,23 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
-import { Search } from "lucide-react";
-import dynamic from "next/dynamic";
-import Loading from "./loading";
-import JobListItem from "@/app/components/job/JobListItem";
-import TestListItem from "@/app/components/test/TestListItem";
-import { CarouselItem } from "@/app/components/ui/carousel";
+import SearchIcon from "@mui/icons-material/Search";
+import { Box, Button, FormLabel, Typography } from "@mui/material";
+import JobListItem from "@/components/JobListItem";
+import TestListItem from "@/features/assessments/components/TestListItem";
 import { Assessment, Job } from "@prisma/client";
-import { getJobAnalysisData } from "../components/dashboard/analysis/actions";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import MainCarousel from "@/components/MainCarousel";
+import Styles from "./page.styles";
 
-const MainCarousel = dynamic(() => import("../components/MainCarousel"), {
-  ssr: false,
-  loading: () => <Loading />,
-});
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  const t = await getTranslations("Home");
+  return {
+    title: t("title"),
+  };
+}
 
 const getRecentJobs = cache(async () => {
   const jobs = await db.job.findMany({
@@ -38,62 +41,71 @@ export default async function Home() {
   const recentJobs = await getRecentJobs();
   const recentAssessments = await getRecentAssessments();
   const t = await getTranslations("Home");
+  const a11y = await getTranslations("A11y");
 
   return (
-    <main className="flex flex-col items-center max-md:w-screen w-full max-w-7xl m-auto">
-      <div className="flex flex-col px-5 max-w-7xl my-10 w-full items-center gap-5">
-        <h1 className="text-4xl font-bold mb-8">{t("title")}</h1>
-        <div className="mb-8 w-full">
-          <h2 className="text-2xl font-semibold mb-4 max-2xl:px-10">
+    <Box component="main" id="main-content" sx={Styles.main}>
+      <Box sx={Styles.inner}>
+        <Typography variant="h1" component="h1" sx={Styles.title}>
+          {t("title")}
+        </Typography>
+
+        <Box component="section" sx={Styles.searchSection}>
+          <Typography variant="h2" component="h2" sx={Styles.sectionHeading}>
             {t("search")}
-          </h2>
-          <div className="flex max-2xl:px-10">
-            <input
+          </Typography>
+          <Box component="form" role="search" sx={Styles.searchRow} noValidate>
+            <FormLabel htmlFor="home-search" sx={Styles.visuallyHidden}>
+              {a11y("search")}
+            </FormLabel>
+            <Box
+              component="input"
+              id="home-search"
               type="text"
-              placeholder={`${t("searching")}`}
-              className="w-full px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2"
+              placeholder={t("searching")}
+              sx={Styles.searchInput}
             />
-            <button className="px-2 py-2 justify-evenly flex flex-row gradient1 text-background rounded-r-lg hover:gradient2 focus:outline-none">
-              <Search />
+            <Button type="submit" sx={Styles.searchButton}>
+              <SearchIcon fontSize="small" aria-hidden="true" />
               {t("searching")}
-            </button>
-          </div>
-        </div>
-        <div className="mb-8 justify-between w-full m-auto max-2xl:px-10">
-          <h2 className="text-2xl font-semibold mb-4">{t("recent_jobs")}</h2>
-          <MainCarousel>
+            </Button>
+          </Box>
+        </Box>
+
+        <Box component="section" sx={Styles.carouselSection}>
+          <Typography variant="h2" component="h2" sx={Styles.sectionHeading}>
+            {t("recent_jobs")}
+          </Typography>
+          <MainCarousel label={t("recent_jobs")}>
             {recentJobs.map((job: Job) => (
-              <CarouselItem key={job.slug} className="lg:basis-1/2">
-                <Link
-                  key={job.slug}
-                  href={`/jobs/${job.slug}`}
-                  className="block"
-                >
-                  <JobListItem job={job} />
-                </Link>
-              </CarouselItem>
+              <Link
+                key={job.slug}
+                href={`/jobs/${job.slug}`}
+                style={Styles.cardLink}
+              >
+                <JobListItem job={job} />
+              </Link>
             ))}
           </MainCarousel>
-        </div>
-        <div className="mb-8 justify-between w-full m-auto max-2xl:px-10">
-          <h2 className="text-2xl font-semibold mb-4">
+        </Box>
+
+        <Box component="section" sx={Styles.carouselSection}>
+          <Typography variant="h2" component="h2" sx={Styles.sectionHeading}>
             {t("recent_assessments")}
-          </h2>
-          <MainCarousel>
+          </Typography>
+          <MainCarousel label={t("recent_assessments")}>
             {recentAssessments.map((test: Assessment) => (
-              <CarouselItem key={test.slug} className="lg:basis-1/2">
-                <Link
-                  key={test.slug}
-                  href={`/test-library/${test.slug}`}
-                  className="block"
-                >
-                  <TestListItem test={test} />
-                </Link>
-              </CarouselItem>
+              <Link
+                key={test.slug}
+                href={`/test-library/${test.slug}`}
+                style={Styles.cardLink}
+              >
+                <TestListItem test={test} />
+              </Link>
             ))}
           </MainCarousel>
-        </div>
-      </div>
-    </main>
+        </Box>
+      </Box>
+    </Box>
   );
 }

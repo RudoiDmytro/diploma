@@ -2,26 +2,31 @@
 
 import { Answer, Assessment } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { evaluateAnswers, submitAssessmentResults } from "./actions";
+import { use, useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/app/components/ui/form";
-import LoadingButton from "@/app/components/LoadingButton";
-import { Input } from "@/app/components/ui/input";
-import CountdownTimer from "@/app/components/test/countdown/Countdown";
-import { redirect, usePathname, useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControlLabel,
+  Typography,
+} from "@mui/material";
+import { useTranslations } from "next-intl";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { evaluateAnswers, submitAssessmentResults } from "./actions";
+import LoadingButton from "@/components/LoadingButton";
+import CountdownTimer from "@/features/assessments/components/countdown/Countdown";
+import Styles from "./page.styles";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 interface Task {
@@ -34,9 +39,12 @@ interface Task {
   answers: Answer[];
 }
 
-export default function page({ params: { slug } }: PageProps) {
+export default function Page({ params }: PageProps) {
+  const { slug } = use(params);
   const form = useForm();
   const router = useRouter();
+  const t = useTranslations("A11y");
+  const tAssessment = useTranslations("TakeAssessment");
 
   const pathname = usePathname();
 
@@ -55,43 +63,49 @@ export default function page({ params: { slug } }: PageProps) {
 
   const [countdownTimer, setCountdownTimer] = useState(5);
 
-  const [inactivityTimer, setInactivityTimer] = useState(30);
+  // Target date for the countdown. Computed after mount so we never read
+  // localStorage during render (which would break SSR / hydration).
+  const [targetDate, setTargetDate] = useState<number | null>(null);
+
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         setShowModal2(true);
       }
     };
 
-    const handleBeforeUnload = (event) => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
       setShowModal2(true);
     };
 
     const handleUserActivity = () => {
-      clearTimeout(inactivityTimer);
-      setInactivityTimer(
-        window.setTimeout(() => {
-          setShowModal2(true);
-        }, 30000)
-      );
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+      inactivityTimerRef.current = setTimeout(() => {
+        setShowModal2(true);
+      }, 30000);
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('touchstart', handleUserActivity);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("touchstart", handleUserActivity);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('touchstart', handleUserActivity);
-      clearTimeout(inactivityTimer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("touchstart", handleUserActivity);
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
     };
-  }, [inactivityTimer]);
+  }, []);
 
   useEffect(() => {
-    let timeout;
+    let timeout: ReturnType<typeof setTimeout>;
 
     setCountdownTimer(5);
 
@@ -144,10 +158,23 @@ export default function page({ params: { slug } }: PageProps) {
       }
     };
     fetchTasks();
-  }, []);
+  }, [slug]);
+
+  // Once the assessment is loaded, resolve the countdown target date,
+  // reading any persisted remaining time from localStorage safely on the client.
+  useEffect(() => {
+    if (!assessment) {
+      return;
+    }
+    const stored = localStorage.getItem("remainingTime");
+    const resolved = stored
+      ? Number(stored) + new Date().getTime()
+      : new Date(Date.now() + Number(assessment.duration) * 1000 * 60).getTime();
+    setTargetDate(resolved);
+  }, [assessment]);
 
   useEffect(() => {
-    let timeoutId;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const handleMouseMove = () => {
       clearTimeout(timeoutId);
@@ -169,12 +196,18 @@ export default function page({ params: { slug } }: PageProps) {
     };
   }, []);
 
-  const handleSubmitAssessment = async (data) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting },
+  } = form;
+
+  const handleSubmitAssessment = async (data: Record<string, unknown>) => {
     try {
       const userScore = await evaluateAnswers(tasks, data);
       await submitAssessmentResults(slug, userScore);
-    } catch (error) {
-      console.error("Error submitting assessment:", error);
+    } catch (submitError) {
+      console.error("Error submitting assessment:", submitError);
     } finally {
       setShowModal1(true);
       localStorage.removeItem("remainingTime");
@@ -185,153 +218,190 @@ export default function page({ params: { slug } }: PageProps) {
     handleSubmit(handleSubmitAssessment)();
   };
 
-  const {
-    handleSubmit,
-    control,
-    formState: { isSubmitting },
-  } = form;
-
   return (
-    <main
-      className="flex flex-col max-md:w-screen md:max-w-7xl"
+    <Box
+      component="main"
+      id="main-content"
+      sx={Styles.main}
       onMouseLeave={() => setShowModal2(true)}
       onTouchCancelCapture={() => setShowModal2(true)}
     >
-      {assessment && (
-        <aside className="flex flex-col gap-5 fixed top-20 right-0 mr-8">
-          <CountdownTimer
-            targetDate={
-              localStorage.getItem("remainingTime")
-                ? Number(localStorage.getItem("remainingTime")) +
-                  new Date().getTime()
-                : new Date(
-                    Date.now() + Number(assessment!.duration) * 1000 * 60
-                  ).getTime()
-            }
-            onExpire={handleExpire}
-          />
-        </aside>
+      {assessment && targetDate !== null && (
+        <Box component="aside" sx={Styles.countdownAside}>
+          <CountdownTimer targetDate={targetDate} onExpire={handleExpire} />
+        </Box>
       )}
-      {showModal1 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Time's up!</h2>
-            <p className="mb-6">Your assessment has been submitted.</p>
-            <Button className="w-full">
-              <Link href={`/test-library/${slug}`}>
-                Return to assessment page
-              </Link>
-            </Button>
-          </div>
-        </div>
-      )}
-      {showModal2 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="bg-background p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Mouse leaved</h2>
-            <p className="mb-6">Redirecting in {countdownTimer} seconds...</p>
-            <Button className="w-full" onClick={() => setShowModal2(false)}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
-      <div className="flex flex-col px-4 m-auto my-10 items-center gap-5 md:items-start">
-        <Form {...form}>
-          <form onSubmit={handleSubmit(handleSubmitAssessment)}>
-            {tasks &&
-              tasks.map((taskWithAnswers, index) => (
-                <section
-                  key={taskWithAnswers.taskToken}
-                  className="grow space-y-5 p-5 bg-card rounded-3xl mb-5"
-                >
-                  <div className="flex items-center justify-between gap-4 bg-background p-5 rounded-xl text-primary">
-                    <div>
-                      <div>
-                        <p className="font-semibold">
-                          <span>
-                            {taskWithAnswers.type === "problem"
-                              ? "Problem"
-                              : "Test"}{" "}
-                            question №{index + 1}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="text-muted-foreground">
-                        <p className="flex items-center gap-2">
-                          <span>
-                            Ponderation is {taskWithAnswers.ponderation}
-                          </span>
-                        </p>
-                        <p className="flex flex-col items-start gap-2 w-full">
-                          <span>
-                            The question is: <br />{" "}
-                          </span>
-                          <span className="font-semibold text-card-foreground p-2 bg-card rounded-xl ">
-                            {taskWithAnswers.question}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>{" "}
-                  {taskWithAnswers.taskFileUrl &&
-                  /\.(png|jpe?g)$/i.test(taskWithAnswers.taskFileUrl) ? (
-                    <div className="relative w-screen-[100px] h-[300px] lg:w-[800px] lg:h-[600px]">
-                      <Image
-                        src={taskWithAnswers.taskFileUrl}
-                        alt={`${taskWithAnswers.question} logo`}
-                        className="rounded-lg self-center bg-background p-1"
-                        fill
+
+      <Dialog
+        open={showModal1}
+        aria-labelledby="assessment-submitted-title"
+      >
+        <DialogTitle id="assessment-submitted-title">
+          Time&apos;s up!
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Your assessment has been submitted.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={Styles.dialogActions}>
+          <Button
+            variant="contained"
+            component={Link}
+            href={`/test-library/${slug}`}
+            sx={Styles.dialogLink}
+          >
+            Return to assessment page
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={showModal2}
+        onClose={() => setShowModal2(false)}
+        role="alertdialog"
+        aria-labelledby="redirect-warning-title"
+        aria-describedby="redirect-warning-description"
+      >
+        <DialogTitle id="redirect-warning-title">Mouse leaved</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="redirect-warning-description" role="alert">
+            {t("leave_assessment_warning")}
+          </DialogContentText>
+          <DialogContentText aria-hidden="true">
+            Redirecting in {countdownTimer} seconds...
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={Styles.dialogActions}>
+          <Button
+            variant="contained"
+            onClick={() => setShowModal2(false)}
+            sx={Styles.dialogButton}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Box sx={Styles.formWrapper}>
+        <Typography variant="h1" component="h1" sx={Styles.pageTitle}>
+          {assessment?.title ?? tAssessment("title")}
+        </Typography>
+        {loading && (
+          <Box
+            role="status"
+            aria-label={t("loading")}
+            sx={Styles.statusWrapper}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+        {error && (
+          <Typography component="p" role="alert" color="error">
+            {error}
+          </Typography>
+        )}
+        <Box component="form" noValidate onSubmit={handleSubmit(handleSubmitAssessment)}>
+          {tasks &&
+            tasks.map((taskWithAnswers, index) => (
+              <Box
+                component="section"
+                key={taskWithAnswers.taskToken}
+                sx={Styles.taskSection}
+              >
+                <Box sx={Styles.taskHeader}>
+                  <Box>
+                    <Typography
+                      variant="h2"
+                      component="h2"
+                      sx={Styles.taskType}
+                    >
+                      <Box component="span">
+                        {taskWithAnswers.type === "problem"
+                          ? "Problem"
+                          : "Test"}{" "}
+                        question №{index + 1}
+                      </Box>
+                    </Typography>
+                    <Box sx={Styles.taskMeta}>
+                      <Typography component="p" sx={Styles.taskMetaRow}>
+                        <Box component="span">
+                          Ponderation is {taskWithAnswers.ponderation}
+                        </Box>
+                      </Typography>
+                      <Typography component="p" sx={Styles.questionRow}>
+                        <Box component="span">
+                          The question is: <br />{" "}
+                        </Box>
+                        <Box component="span" sx={Styles.questionText}>
+                          {taskWithAnswers.question}
+                        </Box>
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                {taskWithAnswers.taskFileUrl &&
+                /\.(png|jpe?g)$/i.test(taskWithAnswers.taskFileUrl) ? (
+                  <Box sx={Styles.imageWrapper}>
+                    <Image
+                      src={taskWithAnswers.taskFileUrl}
+                      alt={`Illustration for question: ${
+                        taskWithAnswers.question ?? `№${index + 1}`
+                      }`}
+                      fill
+                    />
+                  </Box>
+                ) : (
+                  taskWithAnswers.taskFileUrl && (
+                    <Box sx={Styles.imageError}>
+                      <Box component="span">There is a problem with the image</Box>
+                    </Box>
+                  )
+                )}
+                <Box sx={Styles.answersBlock}>
+                  <Box sx={Styles.answersHeaderRow}>
+                    <Typography
+                      variant="h3"
+                      component="h3"
+                      sx={Styles.answersHeading}
+                    >
+                      Answers
+                    </Typography>
+                  </Box>
+                  {taskWithAnswers.answers.map((answer) => (
+                    <Box key={answer.answerId} sx={Styles.answerRow}>
+                      <Controller
+                        control={control}
+                        defaultValue={false}
+                        name={`task-${taskWithAnswers.taskToken}.${answer.answerId}`}
+                        render={({ field }) => (
+                          <FormControlLabel
+                            sx={Styles.answerLabel}
+                            label={answer.description}
+                            labelPlacement="start"
+                            control={
+                              <Checkbox
+                                checked={!!field.value}
+                                onChange={(event) =>
+                                  field.onChange(event.target.checked)
+                                }
+                                onBlur={field.onBlur}
+                                name={field.name}
+                              />
+                            }
+                          />
+                        )}
                       />
-                    </div>
-                  ) : (
-                    taskWithAnswers.taskFileUrl && (
-                      <div className="w-full h-full bg-background p-1">
-                        <span>There is a problem with the image</span>
-                      </div>
-                    )
-                  )}
-                  <div className="flex flex-col bg-background rounded-md text-primary">
-                    <div className="flex flex-row m-2 justify-between">
-                      <p className="font-semibold text-md ml-2">Answers</p>
-                    </div>
-                    {taskWithAnswers.answers.map((answer) => (
-                      <div
-                        key={answer.answerId}
-                        className="flex gap-2 m-1 bg-background justify-between p-3 rounded-md text-primary border-b-2 last:border-b-0 items-center"
-                      >
-                        <p className="max-w-2xl">{answer.description}</p>
-                        <FormField
-                          control={control}
-                          defaultValue={false}
-                          name={`task-${taskWithAnswers.taskToken}.${answer.answerId}`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  type="checkbox"
-                                  className="h-6 w-6"
-                                  checked={field.value}
-                                  onChange={(checked) => {
-                                    field.onChange(checked);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            <LoadingButton type="submit" loading={isSubmitting}>
-              Submit
-            </LoadingButton>
-          </form>
-        </Form>
-      </div>
-    </main>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            ))}
+          <LoadingButton type="submit" loading={isSubmitting} sx={Styles.submitButton}>
+            Submit
+          </LoadingButton>
+        </Box>
+      </Box>
+    </Box>
   );
 }
